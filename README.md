@@ -77,7 +77,7 @@ External AI APIs are part of the intended design. Provider choice and hosting bu
 
 The future System Map and Project Evolution views will show how the workspace actually develops. Their interface can come later; the information needed to build them must be collected from the beginning.
 
-The foundation will record verified component registrations with stable identities and server timestamps. Lifecycle and relationship changes need durable, append-only history as those capabilities arrive. Retries and renames must not inflate growth counts.
+The foundation will record verified components and their logical relationships with stable identities and server timestamps. Node and link changes will have durable, append-only history from M0. Retries and renames must not inflate growth counts.
 
 Historical views must distinguish what was recorded from what was merely planned. Missing health observations are **unknown**, and unavailable telemetry is **not collected**. Earlier topology must not be invented from the current system state.
 
@@ -94,7 +94,7 @@ The project will be delivered in small, verifiable slices. The following is a di
 5. **Additional practical workflows:** image and document processing, language-learning materials, and Telegram capture, introduced one at a time.
 6. **System visualization and portfolio presentation:** historical maps and growth views built from recorded events, with a separate synthetic demonstration dataset.
 
-Detailed milestone acceptance criteria will be reconciled with the updated product direction before implementation. In particular, the map UI may be deferred while history collection remains an early requirement.
+Detailed milestone acceptance criteria are maintained in [PLANS.md](PLANS.md) and [PROJECT_BLUEPRINT.md](PROJECT_BLUEPRINT.md). The map UI is deferred while history collection remains an M0 requirement; [ADR-012](docs/adr/ADR-012-delivery-and-history.md) explains the decision.
 
 ## Development, deployment, and privacy
 
@@ -113,3 +113,5 @@ Connections to independent external projects are a post-MVP possibility. Those p
 ## Getting started
 
 There is no runnable application yet. This first contribution documents the project direction; it does not implement M0. Installation, configuration, and verification commands will accompany the working foundation.
+
+For the documentation reading order and implementation handoff, see [README_FIRST.md](README_FIRST.md). Repository working rules are in [AGENTS.md](AGENTS.md), and the M0 task brief is in [CODEX_START.md](CODEX_START.md).
