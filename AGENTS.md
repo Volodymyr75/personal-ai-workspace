@@ -1,6 +1,6 @@
 # AGENTS.md — Personal AI Workspace
 
-This repository is an personal AI platform intended for open-source release, developed locally with a planned private online deployment built incrementally using Codex.
+This repository is a personal AI platform intended for open-source release, developed locally with a planned private online deployment built incrementally using Codex.
 
 ## Read before making changes
 
@@ -51,6 +51,9 @@ Do not start work on future milestones unless explicitly requested. Finish one c
 - **Pragmatic security (Blueprint §11):** keep local services private/loopback-only; M0 CI runs ordinary checks plus **one** lightweight secret-leak scan (Gitleaks preferred). Add no Bandit/Trivy/Vault/OAuth/security dashboards at M0. Confirmed exposed secrets and unsafe code execution are blockers; low-risk advisories are documented and prioritized, not automatically treated as reasons to abandon MVP.
 - As features arrive, add focused controls: CSV input limits/tool allowlists in M1, isolated demo data when portfolio mode is introduced, authenticated n8n integration in M3. Before any live Internet deployment, perform separate authentication/TLS/rate-limit/container/dependency review. No live deployment should be presented as safe without that gate.
 - Make API->worker asynchronous run lifecycle durable; protect against duplicate claims and lost work.
+- Separate lifecycle (`system_events`), execution (`runs`/`run_events` from M1) and operational telemetry. Do not persist recurring health checks, model calls or routine backup/deployment results in architecture history. Add telemetry storage only with a concrete feature; do not add M0 tables.
+- In M1, correlate execution through stable run IDs, distinct attempt IDs and optional correlation IDs; correlation does not replace idempotency. Record available provider/model, tokens, duration and explicitly estimated cost without inventing unavailable values. No LLM Gateway in M0.
+- Keep graph API/domain contracts renderer-neutral; React Flow/3D layout details belong to frontend adapters. Animated activity replay, 3D, automatic rollback and self-healing are deferred.
 - Annotate unobserved service health as `unknown`, not `healthy`; do not infer historical health from today's status.
 - From **M0**, persist first actual component registrations in `system_events` with UTC server `recorded_at`; register only verified initialized components. Never fabricate/backdate project evolution to make growth look better.
 - Use stable namespaced component keys; rename != new component. Write registry change and immutable lifecycle event in one transaction; make bootstrapping and retries idempotent.

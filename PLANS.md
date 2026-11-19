@@ -5,14 +5,14 @@ Updated: 2026-11-19
 ## Current state
 
 - Introductory README published; repository connected to GitHub.
-- Blueprint v1.4, repository rules and M0 brief aligned with the owner discussion.
-- ADR-012 records the revised delivery and history boundary.
+- Blueprint v1.5, repository rules and M0 brief aligned with the owner discussion.
+- ADR-012 records the revised delivery and history boundary; ADR-013 clarifies operations, traceability and visualization without expanding M0.
 - No backend, frontend, database, worker, bot, CI or deployment implemented.
 - No runtime system events exist yet. Documentation commits are not component-registration events.
 
 ## Next task: M0 — repository foundation
 
-Status: Not started. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Do not implement M1 or later features during this task.
+Status: Not started. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. Do not implement M1 or later features during this task.
 
 Suggested sequence within M0:
 
@@ -24,6 +24,7 @@ Suggested sequence within M0:
 ### M0 acceptance checklist
 
 - [ ] `/api/v1/health` reports liveness; `/api/v1/ready` reports actual database readiness, including failure behavior.
+- [ ] Health/readiness probes do not append lifecycle events; no telemetry or execution schema is introduced in M0.
 - [ ] Migrations create only `service_nodes`, `service_edges` and `system_events` for domain storage.
 - [ ] Bootstrap verifies the running API and database before registering their stable node keys and logical `persists_to` link.
 - [ ] Projection changes and safe full after-state events commit or roll back together.
@@ -55,9 +56,10 @@ Core MVP completion requires M0–M3, not visualization. Online availability req
 ## Decisions to make when relevant
 
 - **M0:** concrete dependency/tool versions, bootstrap verification mechanism and database enforcement of immutable events.
-- **M1:** CSV formats and limits, aggregation semantics, lease/recovery rules, stale-worker protection, provider/model and bounded spending policy.
-- **M3:** integration secret handling, bounded delivery retries and observable n8n failures when the API is down.
-- **M4:** hosting and budget based on measured requirements; owner access, HTTPS, storage durability and tested restoration.
+- **M1:** CSV formats and limits, aggregation semantics, lease/recovery rules, stale-worker protection, provider/model and bounded spending policy; run/attempt/call identifiers, optional correlation IDs, available usage metadata and cost-estimate provenance.
+- **M3:** integration secret handling, bounded delivery retries and observable n8n failures when the API is down; minimal operational observation storage and retention, separate from lifecycle history.
+- **M4:** hosting and budget based on measured requirements; owner access, HTTPS, storage durability and tested restoration; actual backup outcomes and deployment tracking.
+- **Visualization:** renderer-neutral graph DTOs; separate evolution from activity replay. Define replay coverage using retained execution/telemetry data. Animation, 3D, automatic rollback and self-healing remain post-MVP.
 - **Later learning slice:** vocabulary draft representation and review UI; retain all readable source text and owner control.
 
 Do not collect credentials in documentation or fabricate progress. Update this plan with actual commands and acceptance evidence as implementation proceeds.

@@ -6,11 +6,13 @@ Copy the prompt below into Codex in the existing documentation repository; prese
 
 You are the software engineer implementing the first milestone of Personal AI Workspace, a personal AI platform developed locally with a planned private online deployment.
 
-**Read first:** `AGENTS.md`, `PROJECT_BLUEPRINT.md`, `PLANS.md` and `docs/adr/ADR-012-delivery-and-history.md`. Use them as requirements and architecture constraints. Do not silently change the architecture. You may consult upstream official documentation for the current library APIs.
+**Read first:** `AGENTS.md`, `PROJECT_BLUEPRINT.md`, `PLANS.md`, `docs/adr/ADR-012-delivery-and-history.md` and `docs/adr/ADR-013-operations-and-visualization-boundaries.md`. Use them as requirements and architecture constraints. Do not silently change the architecture. You may consult upstream official documentation for the current library APIs.
 
 **Future extensibility constraint:** The Blueprint's External Projects Integration (§14.1) is a **post-MVP design boundary**. Keep the existing project/domain architecture extensible, but **do not** implement connectors, project watchers, external repo access, or migrations for them in M0. The sample future projects are illustrative, not registered platform components.
 
 **Task:** Implement **M0 — Repository Foundation** only. Produce a coherent, working minimal slice, not a skeleton full of placeholder agent implementations.
+
+**Operational boundary:** Keep `system_events` for lifecycle history. Health/readiness probes do not create architecture events. Execution tracing/usage belongs to M1; operational observation persistence starts only with a concrete monitoring feature. No extra telemetry tables, LLM Gateway, monitoring platform, renderer abstraction, replay or self-healing work in M0.
 
 **Scope:**
 

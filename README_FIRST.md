@@ -1,6 +1,6 @@
 # Personal AI Workspace — documentation guide
 
-This repository is at the documentation stage. Blueprint v1.4 incorporates the owner's November 19, 2026 decisions. No application or deployment exists yet.
+This repository is at the documentation stage. Blueprint v1.5 incorporates the owner's November 19, 2026 decisions. No application or deployment exists yet.
 
 ## Read in this order
 
@@ -9,7 +9,8 @@ This repository is at the documentation stage. Blueprint v1.4 incorporates the o
 3. [PROJECT_BLUEPRINT.md](PROJECT_BLUEPRINT.md) — architecture and milestone requirements.
 4. [PLANS.md](PLANS.md) — current state, next slice and acceptance checklist.
 5. [ADR-012](docs/adr/ADR-012-delivery-and-history.md) — rationale for revised delivery and history collection.
-6. [CODEX_START.md](CODEX_START.md) — implementation brief for M0, to use when starting that milestone.
+6. [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) — lifecycle/execution/telemetry separation and visualization boundaries.
+7. [CODEX_START.md](CODEX_START.md) — implementation brief for M0, to use when starting that milestone.
 
 ## Delivery sequence
 

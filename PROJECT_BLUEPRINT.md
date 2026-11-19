@@ -1,7 +1,7 @@
 # Personal AI Workspace (PAW)
 ## Project Blueprint — Vision, Architecture, MVP and Delivery Plan
 
-**Version:** 1.4 (Owner workflow and history-first delivery, 2026-11-19)
+**Version:** 1.5 (Operational boundaries and traceability, 2026-11-19)
 **Status:** Proposed architecture; not implemented
 **Language:** Ukrainian/English design documentation; English code, UI and general reports; Ukrainian language-learning explanations
 **Repository:** `personal-ai-workspace` (working name)
@@ -162,6 +162,30 @@ backend/src/paw/
 
 **Avoid premature abstractions:** implement an interface only when there is a clear boundary or imminent second implementation. A registry can initially be a typed Python mapping, not a dynamic marketplace of plugins.
 
+### 5.2 Operations visibility and event boundaries
+
+A future Operations view will combine services, agents, integrations, deployments, health observations, errors and backup status. The Service Registry remains the source of truth for component identity and topology. Observations reference stable component keys; they do not create a second inventory. A unified API view does not require a unified event table or a new monitoring service.
+
+Keep three categories distinct:
+
+| Category | Examples | Storage boundary |
+| --- | --- | --- |
+| System lifecycle | Registration, modification, retirement, topology change, explicit milestone | Append-only `system_events`; atomic with registry changes |
+| Execution | Agent runs, tool calls, LLM requests, run-related workflow steps and errors | `runs` and `run_events` from M1 |
+| Operational telemetry | Health checks, availability observations, deployment attempts, backup outcomes | Minimal dedicated storage only with the feature that needs it |
+
+Do not put recurring health checks, per-request usage or routine backup/deployment results into `system_events`. An explicit release milestone or a resulting component/topology change may have a separate lifecycle event referencing the relevant operation. Errors belong to their execution or operational context, not a duplicate global error schema. An independent n8n health workflow is operational activity; an n8n-triggered agent run has normal run events and may reference the external workflow execution ID.
+
+M0 still creates only the three agreed history tables. Its health/readiness endpoints do not persist every probe. In M3, introduce only the operational persistence needed by the first monitoring workflow, with bounded retention. Deployment and backup status belong to M4 when those operations exist. n8n owns triggers and its workflow state; PAW owns the accepted application state and observations. Notifications, automatic rollback and self-healing require separately scoped future work.
+
+### 5.3 Execution traceability and model usage (M1)
+
+Use stable `run_id` values across API, Worker, tool/model events and structured logs. Identify execution attempts separately so retries and lease recovery remain distinguishable. Propagate an optional correlation ID across incoming triggers and related runs where useful; it is not an idempotency key or proof of authorization. Add these fields with the M1 execution model, not as unused M0 schema.
+
+The provider adapter should expose provider/model identity, available input/output token counts, measured request duration and estimated cost when a supported pricing basis exists. Identify individual model calls within an attempt so duplicate event delivery does not duplicate usage records; a real retry that invokes the provider again is a separate call. Keep unavailable values null/explicitly unavailable, not zero; do not assume failed requests are free. Label cost as an estimate with currency and pricing basis/version, separate from provider billing. Keep prompts and private source contents out of these metadata events. No dedicated LLM Gateway, billing subsystem or distributed tracing platform is required.
+
+See [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for the clarification and deferred work.
+
 ## 6. Data model (incremental target)
 
 Recommended entities:
@@ -177,7 +201,7 @@ Recommended entities:
 | `service_nodes` | `key`, `kind`, `display_name`, `visibility`, `lifecycle_state`, `registered_at`, `retired_at`, `metadata_json` | Current-state projection; `key` remains stable after rename |
 | `service_edges` | `id`, `source_key`, `target_key`, `relation`, `registered_at`, `retired_at` | Current typed relationships; soft-retire rather than erase history |
 | `system_events` | `id`, `sequence`, `event_type`, `entity_key`, `source`, `schema_version`, `occurred_at`, `recorded_at`, `idempotency_key`, `payload_safe_json` | **Append-only** project evolution, inventory changes and milestones |
-| `service_heartbeats` | `service_key`, `last_seen_at`, `last_result` | Evidence of observed availability; not historical presence |
+| `service_heartbeats` | `service_key`, `last_seen_at`, `last_result` | Latest availability observation; not a full historical telemetry log |
 
 Use UUIDs for run/project/file/artifact and system-event IDs. Use stable namespaced strings for `service_key`, e.g. `service:api`, `agent:data_analyst`; never use a display name as an identity. Index `system_events(recorded_at, sequence)` and `system_events(entity_key, recorded_at)`; make `idempotency_key` unique where provided. Index runs by status/time and run events by run/time. All timestamps are UTC. n8n uses its own DB/schema and DB user; PAW must not query n8n internal tables.
 
@@ -276,11 +300,11 @@ Schedule Trigger (every hour)
   -> HTTP GET FastAPI /api/v1/health
   -> classify result
   -> HTTP POST /api/v1/integrations/n8n/events
-  -> create event + update observed automation heartbeat
+  -> persist operational observation + update latest automation heartbeat
   -> API/activity UI reflects the event (map later)
 ```
 
-Save an exportable, sanitized workflow JSON in `automation/n8n/workflows/`. Credentials and tokens remain only in n8n credential storage or private environment configuration. PAW authenticates n8n calls with a server-side integration secret, enforces request size limits and `event_id` idempotency. A single automation should never write directly to PAW tables.
+Save an exportable, sanitized workflow JSON in `automation/n8n/workflows/`. Credentials and tokens remain only in n8n credential storage or private environment configuration. PAW authenticates n8n calls with a server-side integration secret, enforces request size limits and `event_id` idempotency. A single automation should never write directly to PAW tables. Registration of `integration:n8n` is a lifecycle event; recurring checks are operational observations, never `system_events`. Introduce only the minimal observation storage needed at M3.
 
 Future n8n workflows: nightly report triggers, reminders, scheduled site health checks, notifications, marketing connectors, feeds, language-study prompts. Use HTTP API to request a run and query completion; do not duplicate agent logic in n8n nodes.
 
@@ -289,6 +313,8 @@ Future n8n workflows: nightly report triggers, reminders, scheduled site health 
 ### 10.1 Visual requirements
 
 Implement a distinct **System Map** page in Next.js using React Flow. It shows real nodes and **typed directed links**, not a decorative animation pretending to be live infrastructure.
+
+The backend exposes renderer-neutral node identities, kinds, labels, typed relationships, observed states and event references. React Flow coordinates, handles, colors and other rendering options belong to the frontend adapter/layout layer, not the domain model or lifecycle payloads. A future Three.js or other renderer should reuse these domain contracts; its layout and interactions still require frontend work. Do not build renderer infrastructure or 3D graphics in M0.
 
 Target nodes **once each component actually exists and has been registered** (never register a component just because it is listed here):
 - `ui:web` — Next.js
@@ -311,7 +337,7 @@ Interactions: pan/zoom, click node for details, filter by type/status, show late
 - Nodes and links come from **explicit graph registry** (seeded/migrated definitions; later dynamic registrations possible).
 - Health states use observed heartbeat/readiness data: `healthy`, `degraded`, `down`, `unknown`; **unknown is not healthy**.
 - Recent activity comes from `run_events` and platform events; avoid inventing activity animations.
-- Poll the API every 3–5 seconds during MVP; SSE/WebSockets only if justified later.
+- When visualization is implemented, start with API polling every 3–5 seconds; SSE/WebSockets only if justified later.
 - Every event includes timestamp, type, source, optional run_id and sanitized short message. **System lifecycle events** are a separate append-only stream from potentially high-volume `run_events`; neither may be overwritten to rewrite history.
 - No hostname, internal IP, token, personal message, raw user data or secret in publicly accessible map data.
 
@@ -361,6 +387,15 @@ Counts are computed in UTC and grouped by user-selected `day | week | month`; di
 **Deferred visualization API contract:** `GET /api/v1/graph?as_of=...`, `GET /api/v1/evolution/metrics`, `GET /api/v1/evolution/timeline`. A local-only, explicit command or authenticated owner action can record milestone events; GitHub releases are not assumed to have been imported unless an integration actually does so. Each endpoint uses stable DTOs, pagination/bounds and a consistent UTC interpretation. Private live data and synthetic portfolio data must be backed by **different fixtures/data sources**; never publish a redacted live DB dump as the public demo.
 
 **Tests:** double registration is idempotent; rename doesn't increase entity count; retirement reduces active count; reactivation follows an explicit event; link add/remove changes historical topology; historical labels are preserved; `as_of` cutoff excludes future events; event timestamp/order and UTC behavior are deterministic; no PII in demo/events; project growth charts match known synthetic fixtures.
+
+### 10.5 Four conceptual views and replay limits
+
+- **Live System Map:** registered topology plus the latest observed state, including observation time and unknown/stale status when evidence is missing or outdated.
+- **Project Evolution / Growth Analytics:** lifecycle history, historical topology and component growth from `system_events`.
+- **Historical Activity Replay:** execution and operational activity over a selected interval, correlated with the topology known at that time. Animated playback is a post-MVP enhancement.
+- **Portfolio Demo:** an isolated synthetic presentation mode that can demonstrate the other views; it has no access to private live storage.
+
+Topology snapshots cannot reconstruct past tool calls, health checks or backups. A latest-heartbeat row cannot reconstruct availability history. Choose event detail and retention when execution/telemetry features arrive; replay must show coverage gaps and expired/uncollected periods honestly. Preserve lifecycle history independently of bounded operational retention. No replay API, animation, Three.js dependency or new event broker belongs in M0.
 
 ## 11. Pragmatic security baseline — secure enough to build, not security theater
 
@@ -605,6 +640,7 @@ ADR-001–011 below are design summaries, not claims that separate ADR files or 
 - **ADR-011**: Proportional security: minimal M0 secrets/local-network safeguards; feature-specific input and capability controls during MVP; public-exposure review as a distinct gate, not an M0 prerequisite.
 
 - **[ADR-012](docs/adr/ADR-012-delivery-and-history.md)**: Single-owner online direction, deferred visualization, factual node/link history from M0, and later capture/language workflows.
+- **[ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md)**: Separate lifecycle, execution and operational data; future correlated usage and renderer-neutral views without expanding M0.
 
 ## 18. Source and licensing references
 
