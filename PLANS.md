@@ -12,7 +12,7 @@ Updated: 2026-11-19
 
 ## M0 — repository foundation
 
-Status: Implemented and locally validated; remote CI verification pending. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. Do not implement M1 or later features during this task.
+Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. Do not implement M1 or later features during this task.
 
 Implementation sequence completed:
 
@@ -71,10 +71,10 @@ Do not collect credentials in documentation or fabricate progress. Update this p
 - Frontend ESLint, Prettier, TypeScript and production build passed; both pages returned HTTP 200 with the expected foundation labels.
 - Compose configuration validated; API/web started with PostgreSQL internal and published ports on loopback. Bootstrap repeated without extra events.
 - Database outage/recovery and API restart smoke checks passed: readiness returned 503, liveness stayed 200, recovery restored readiness and registration IDs/timestamps remained unchanged.
-- Gitleaks staged-diff and existing-history scans passed with no leaks. Two descriptive n8n placeholders initially triggered generic-key detection; they were replaced by empty placeholders, with no scanner rule suppression. Remote CI verification is pending publication.
+- Gitleaks staged-diff and existing-history scans passed with no leaks. Two descriptive n8n placeholders initially triggered generic-key detection; they were replaced by empty placeholders, with no scanner rule suppression. GitHub Actions passed all three jobs: [M0 checks](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44583671581).
 - No browser/screen automation used. Responsive CSS is present; visual inspection on iPhone remains a manual check.
 
-Nonblocking tooling notes: Starlette warns that its httpx test-client compatibility path is deprecated; it currently passes all tests. ESLint 9 reports end of support; the pinned configuration passes, with a tooling refresh to be considered separately. Neither warning is a known exposed credential or failing application check.
+Nonblocking tooling notes: Starlette warns that its httpx test-client compatibility path is deprecated; it currently passes all tests. ESLint 9 reports end of support; the pinned configuration passes, with a tooling refresh to be considered separately. GitHub Actions also reports a Node 20 action-runtime deprecation while successfully running the pinned action on Node 24. These tooling notices are not known exposed credentials or failing application checks; update the affected tooling in a focused maintenance slice.
 
 ## Recommended next task
 
