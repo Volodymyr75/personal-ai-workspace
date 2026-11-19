@@ -12,7 +12,7 @@ Updated: 2026-11-19
 
 ## M0 — repository foundation
 
-Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. Do not implement M1 or later features during this task.
+Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. This M0 scope is complete; the active task below is M1.1.
 
 Implementation sequence completed:
 
@@ -42,7 +42,7 @@ Implementation sequence completed:
 
 | Milestone | Scope | Status |
 | --- | --- | --- |
-| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | Not started |
+| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | M1.1 storage implemented; remaining slices not started |
 | M2 | Responsive English web workflow, history, results and error states | Not started |
 | M3 | Authenticated, idempotent n8n integration and reproducible core MVP | Not started |
 | M4 | Owner-only online deployment, targeted release checks, storage and backup/restore | Not started |
@@ -78,4 +78,16 @@ Nonblocking tooling notes: Starlette warns that its httpx test-client compatibil
 
 ## Recommended next task
 
-M1, first slice: durable run state, validated CSV storage and deterministic analysis. Define leases/recovery and numerical fixtures before adding model interpretation. Do not implement Telegram, vocabulary, graphs or infrastructure automation in that slice.
+M1.2 only: durable run state and a separate Worker, with claim/lease/recovery semantics and offline execution tests. Agree the bounded slice with the owner before starting. Deterministic analysis belongs to M1.3 and model interpretation to M1.4.
+
+## Active task — M1.1 projects and CSV storage
+
+Implemented: project create/list/detail, bounded CSV upload, durable local file storage and metadata, failure cleanup, API tests and documentation. No Worker, runs, analysis, LLM or frontend features in this slice. M1.2 will introduce durable execution; M1.3 deterministic analysis; M1.4 model interpretation.
+
+- Migration 0002 adds one internal workspace, projects and files; existing lifecycle history remains intact.
+- CSV bounds and local persistence/recovery decisions are recorded in ADR-015.
+- Weekly Dependabot updates configured for backend/frontend; first scheduled execution is not yet verified.
+- Full Docker/PostgreSQL suite: 63 passed, including failed database/disk writes, orphan cleanup, restart and concurrent uploads. The existing test-client deprecation warning remains nonblocking.
+- Ruff lint/format and strict mypy passed (24 source files). `git diff --check` passed.
+- Live migration from M0 completed; synthetic project/upload returned 201, checksum matched, metadata and original bytes survived API container restart. Bootstrap reported unchanged and the original three lifecycle events retained their timestamps.
+- GitHub CI: pending publication of this slice. No browser/screen automation used.

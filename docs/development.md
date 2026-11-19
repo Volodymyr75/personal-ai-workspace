@@ -50,6 +50,16 @@ Docker tests use a separate `paw_test` database with temporary storage and a fre
 
 The integration suite verifies migrations, real readiness, concurrent bootstrap, retry idempotency, full event after-state, rollback after an injected failure, append-only enforcement and server-controlled timestamps. A missing historical event for an existing registry entry is rejected rather than backfilled.
 
+## M1.1 manual CSV check
+
+Open [API docs](http://127.0.0.1:8000/docs). Use **Try it out** on `POST /api/v1/projects` with `{"name":"CSV practice","description":"Synthetic example"}`. Copy the returned `id`, then use `POST /api/v1/files`: enter it as `project_id`, leave delimiter as comma and select `examples/sample_campaigns.csv` from this repository. A successful upload returns HTTP 201, three data rows, column count and a SHA-256 checksum.
+
+Use `GET /api/v1/projects/{project_id}/files` and `GET /api/v1/files/{file_id}` to retrieve metadata. Restart the API and repeat the GET: metadata and original bytes should persist. The web frontend remains the foundation shell; it has no upload controls yet. Upload does not start analysis or call an AI provider.
+
+CSV must be UTF-8 (BOM allowed), with unique nonblank headers and consistent columns. Maximum: 10 MiB, 100,000 data rows, 200 columns, 256 characters per header and 32,768 characters per cell. Semicolon requires explicitly selecting `;`. Unsupported file media types return 415, invalid CSV returns 422, oversize returns 413 and unavailable persistence returns 503. Errors do not echo source contents. Project/file lists support `limit` (1–100) and `offset` (0–100000).
+
+Originals use server UUID names in the dedicated `file_data` Docker volume. Database and file volumes form one installation and must be preserved together. Cleanup after failed writes is tested; recovery details and limitations are in [ADR-015](adr/ADR-015-projects-and-csv-storage.md). Download, delete, editing, runs and analysis remain unimplemented.
+
 ## Stop and recover
 
 ```sh

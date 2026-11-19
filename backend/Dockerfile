@@ -9,7 +9,7 @@ COPY migrations ./migrations
 COPY alembic.ini ./
 RUN uv sync --frozen --no-dev
 ENV PATH="/app/.venv/bin:$PATH"
-RUN useradd --uid 10001 --create-home paw
+RUN useradd --uid 10001 --create-home paw && mkdir -p /data/files && chown paw:paw /data/files
 USER paw
 CMD ["uvicorn", "paw.api.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
 

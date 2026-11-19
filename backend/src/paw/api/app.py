@@ -1,14 +1,24 @@
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Literal
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Request, Response
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
+from sqlalchemy.exc import SQLAlchemyError
+from starlette.exceptions import HTTPException
+from starlette.responses import JSONResponse
 
+from paw.api.catalog import router
+from paw.api.limits import BodyLimits
 from paw.config import Settings
+from paw.domain.files import Catalog, InputError, NotFound
 from paw.domain.ports import Readiness
+from paw.infrastructure.db.catalog import PostgresCatalog
 from paw.infrastructure.db.connection import DatabaseReadiness, make_engine
 from paw.infrastructure.logging import configure_logging
+from paw.infrastructure.storage.local import LocalBlobStore
 
 
 class HealthResponse(BaseModel):
@@ -22,17 +32,25 @@ class ReadyResponse(BaseModel):
     code: Literal["database_unavailable"] | None = None
 
 
-def create_app(readiness: Readiness | None = None) -> FastAPI:
+def create_app(readiness: Readiness | None = None, catalog: Catalog | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         configure_logging()
+        app.state.catalog = catalog
         if readiness is not None:
             app.state.readiness = readiness
             yield
         else:
-            engine = make_engine(Settings())
+            settings = Settings()
+            engine = make_engine(settings)
             app.state.readiness = DatabaseReadiness(engine)
             try:
+                actual_catalog = PostgresCatalog(engine, LocalBlobStore(settings.storage_root))
+                app.state.catalog = actual_catalog
+                try:
+                    actual_catalog.reconcile()
+                except (SQLAlchemyError, OSError):
+                    logging.getLogger("paw").warning("upload_reconciliation_deferred")
                 yield
             finally:
                 engine.dispose()
@@ -49,5 +67,40 @@ def create_app(readiness: Readiness | None = None) -> FastAPI:
             return ReadyResponse(status="ready")
         response.status_code = 503
         return ReadyResponse(status="not_ready", code="database_unavailable")
+
+    app.add_middleware(BodyLimits)
+    app.include_router(router)
+
+    @app.exception_handler(InputError)
+    async def input_error(request: Request, exc: InputError) -> JSONResponse:
+        return JSONResponse({"code": exc.code}, 413 if exc.code == "file_too_large" else 422)
+
+    @app.exception_handler(NotFound)
+    async def not_found(request: Request, exc: NotFound) -> JSONResponse:
+        return JSONResponse({"code": "not_found"}, 404)
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+        return JSONResponse({"code": "invalid_request"}, 422)
+
+    @app.exception_handler(HTTPException)
+    async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
+        codes = {
+            400: "invalid_upload",
+            404: "not_found",
+            405: "method_not_allowed",
+            413: "request_too_large",
+            415: "unsupported_media_type",
+            503: "service_unavailable",
+        }
+        return JSONResponse(
+            {"code": codes.get(exc.status_code, "invalid_request")}, exc.status_code
+        )
+
+    @app.exception_handler(SQLAlchemyError)
+    @app.exception_handler(OSError)
+    async def persistence_error(request: Request, exc: Exception) -> JSONResponse:
+        logging.getLogger("paw").error("storage_operation_failed")
+        return JSONResponse({"code": "storage_unavailable"}, 503)
 
     return app

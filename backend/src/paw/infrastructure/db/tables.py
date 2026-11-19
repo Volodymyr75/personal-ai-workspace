@@ -56,3 +56,35 @@ events = Table(
     Column("idempotency_key", String(240), unique=True),
     Column("payload_safe_json", JSONB, nullable=False),
 )
+
+workspaces = Table(
+    "workspaces",
+    metadata,
+    Column("id", Uuid, primary_key=True),
+    Column("name", String(120), nullable=False),
+    Column("created_at", DateTime(timezone=True), server_default=text("clock_timestamp()")),
+)
+projects = Table(
+    "projects",
+    metadata,
+    Column("id", Uuid, primary_key=True),
+    Column("workspace_id", ForeignKey("workspaces.id"), nullable=False),
+    Column("name", String(120), nullable=False),
+    Column("description", String(2000), nullable=False),
+    Column("created_at", DateTime(timezone=True), server_default=text("clock_timestamp()")),
+)
+files = Table(
+    "files",
+    metadata,
+    Column("id", Uuid, primary_key=True),
+    Column("project_id", ForeignKey("projects.id"), nullable=False),
+    Column("original_name", String(255), nullable=False),
+    Column("storage_key", String(40), nullable=False, unique=True),
+    Column("mime_type", String(64), nullable=False),
+    Column("size_bytes", BigInteger, nullable=False),
+    Column("sha256", String(64), nullable=False),
+    Column("row_count", Integer, nullable=False),
+    Column("column_count", Integer, nullable=False),
+    Column("delimiter", String(1), nullable=False),
+    Column("created_at", DateTime(timezone=True), server_default=text("clock_timestamp()")),
+)

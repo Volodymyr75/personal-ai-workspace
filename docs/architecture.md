@@ -1,4 +1,4 @@
-# Architecture — M0 foundation
+# Architecture — foundation and M1.1 storage
 
 The backend is a modular monolith. M0 runs the API; a separate Worker will share its codebase/image in M1. The web shell uses Next.js and contains no fabricated operational data. PostgreSQL is internal to Compose. n8n is an inactive optional profile and is not registered by bootstrap.
 
@@ -10,7 +10,9 @@ The backend is a modular monolith. M0 runs the API; a separate Worker will share
 - `infrastructure/db`: connections, migration-owned tables and transactional persistence.
 - `cli`: explicit local administration entry point; there is no unauthenticated registry-write HTTP endpoint.
 
-`GET /api/v1/health` is process liveness. `GET /api/v1/ready` checks database connectivity, expected migration revision and the three foundation tables. It returns 503 with a stable code on failure, without SQL, credentials or connection details. Probes do not write events.
+`GET /api/v1/health` is process liveness. `GET /api/v1/ready` checks database connectivity, expected migration revision, foundation tables and project/file metadata tables. It returns 503 with a stable code on failure, without SQL, credentials or connection details. Probes do not write events. Readiness does not measure file-volume health.
+
+M1.1 adds framework-independent project/file contracts, CSV validation, versioned project/upload/metadata routes, PostgreSQL catalog persistence and a UUID-keyed local storage adapter. The original bytes persist in a dedicated volume. See [ADR-015](adr/ADR-015-projects-and-csv-storage.md) for input limits, transaction boundaries and crash cleanup.
 
 ## Actual evolution history
 
@@ -32,5 +34,6 @@ Lifecycle history belongs in `system_events`. Execution belongs in future `runs`
 - Node.js 24.22.3, exact direct dependencies and `frontend/package-lock.json`.
 - PostgreSQL 17 image, API and frontend images pinned in container configuration.
 - CI pins action revisions and one Gitleaks version; dependency updates are deliberate changes with revalidation.
+- Weekly Dependabot configuration covers backend `uv` and frontend `npm`, with no automatic merges. This is the single M1 dependency-update mechanism; the first scheduled run remains to be observed. Ecosystem values follow the [GitHub reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).
 
 See [ADR-014](adr/ADR-014-foundation-transactions.md) for implementation tradeoffs and [development.md](development.md) for checks.
