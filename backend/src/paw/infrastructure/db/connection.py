@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from paw.config import Settings
 
-SCHEMA_REVISION = "0002_projects_files"
+SCHEMA_REVISION = "0003_runs"
 logger = logging.getLogger("paw")
 
 
@@ -37,6 +37,8 @@ class DatabaseReadiness:
                 connection.execute(text("SELECT id FROM system_events LIMIT 0"))
                 connection.execute(text("SELECT id FROM projects LIMIT 0"))
                 connection.execute(text("SELECT id FROM files LIMIT 0"))
+                connection.execute(text("SELECT id FROM runs LIMIT 0"))
+                connection.execute(text("SELECT id FROM run_events LIMIT 0"))
                 return revision == SCHEMA_REVISION
         except SQLAlchemyError:
             logger.warning("database_not_ready")

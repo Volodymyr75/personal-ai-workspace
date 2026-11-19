@@ -12,11 +12,14 @@ from starlette.responses import JSONResponse
 
 from paw.api.catalog import router
 from paw.api.limits import BodyLimits
+from paw.api.runs import router as runs_router
 from paw.config import Settings
 from paw.domain.files import Catalog, InputError, NotFound
 from paw.domain.ports import Readiness
+from paw.domain.runs import IdempotencyConflict, RunRepository
 from paw.infrastructure.db.catalog import PostgresCatalog
 from paw.infrastructure.db.connection import DatabaseReadiness, make_engine
+from paw.infrastructure.db.runs import PostgresRuns
 from paw.infrastructure.logging import configure_logging
 from paw.infrastructure.storage.local import LocalBlobStore
 
@@ -32,11 +35,16 @@ class ReadyResponse(BaseModel):
     code: Literal["database_unavailable"] | None = None
 
 
-def create_app(readiness: Readiness | None = None, catalog: Catalog | None = None) -> FastAPI:
+def create_app(
+    readiness: Readiness | None = None,
+    catalog: Catalog | None = None,
+    runs: RunRepository | None = None,
+) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         configure_logging()
         app.state.catalog = catalog
+        app.state.runs = runs
         if readiness is not None:
             app.state.readiness = readiness
             yield
@@ -44,6 +52,7 @@ def create_app(readiness: Readiness | None = None, catalog: Catalog | None = Non
             settings = Settings()
             engine = make_engine(settings)
             app.state.readiness = DatabaseReadiness(engine)
+            app.state.runs = PostgresRuns(engine)
             try:
                 actual_catalog = PostgresCatalog(engine, LocalBlobStore(settings.storage_root))
                 app.state.catalog = actual_catalog
@@ -70,6 +79,11 @@ def create_app(readiness: Readiness | None = None, catalog: Catalog | None = Non
 
     app.add_middleware(BodyLimits)
     app.include_router(router)
+    app.include_router(runs_router)
+
+    @app.exception_handler(IdempotencyConflict)
+    async def conflict(request: Request, exc: IdempotencyConflict) -> JSONResponse:
+        return JSONResponse({"code": "idempotency_conflict"}, 409)
 
     @app.exception_handler(InputError)
     async def input_error(request: Request, exc: InputError) -> JSONResponse:

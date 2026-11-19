@@ -17,7 +17,7 @@ jobs:
       - run: python -m pip install uv==0.13.9
       - run: uv sync --frozen
         working-directory: backend
-      - run: uv run ruff check . && uv run ruff format --check . && uv run mypy
+      - run: uv run ruff check . ../scripts/smoke_runs.py && uv run ruff format --check . ../scripts/smoke_runs.py && uv run mypy
         working-directory: backend
       - name: Isolated PostgreSQL integration and API tests
         run: |
@@ -33,6 +33,10 @@ jobs:
           docker compose --env-file .env -f infrastructure/compose.yaml exec -T api python -m paw.cli bootstrap
           count=$(docker compose --env-file .env -f infrastructure/compose.yaml exec -T postgres psql -U paw -d paw -Atc 'SELECT count(*) FROM system_events;')
           test "$count" = 3
+      - name: Live diagnostic Worker smoke test
+        run: |
+          docker compose --env-file .env -f infrastructure/compose.yaml up --build -d worker
+          python scripts/smoke_runs.py
       - name: Stop CI services
         if: always()
         run: docker compose --env-file .env -f infrastructure/compose.yaml --profile test stop

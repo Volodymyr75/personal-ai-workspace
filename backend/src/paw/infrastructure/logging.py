@@ -11,6 +11,11 @@ class JsonFormatter(logging.Formatter):
                 "timestamp": datetime.now(UTC).isoformat(),
                 "level": record.levelname,
                 "event": record.getMessage(),
+                **{
+                    key: getattr(record, key)
+                    for key in ("run_id", "attempt_id", "correlation_id")
+                    if hasattr(record, key)
+                },
             }
         )
 

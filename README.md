@@ -4,7 +4,7 @@ A personal AI workspace for turning everyday files, questions, and ideas into us
 
 PAW is both a practical tool and a learning project: an opportunity to build experience with AI engineering, backend development, workflow automation, and reliable software delivery while automating recurring personal tasks.
 
-> **Status: M0 foundation and M1.1 CSV storage implemented locally.** Projects, validated CSV uploads and persistent file metadata are available through the API, alongside health/readiness, component history and a Next.js foundation shell. CSV analysis, agents, Worker, upload UI, Telegram, integrated n8n workflows and online deployment are not implemented. The complete product workflows below remain planned.
+> **Status: M0, M1.1 CSV storage and M1.2 diagnostic execution implemented locally.** Projects, validated uploads, persistent metadata and durable diagnostic runs are available through the API. A separate Worker supports leases and bounded recovery; health/readiness, component history and the Next.js foundation shell remain available. CSV analysis, AI agents, upload/run UI, Telegram, integrated n8n workflows and online deployment are not implemented. The complete product workflows below remain planned.
 
 ## What PAW is for
 
@@ -112,11 +112,11 @@ Connections to independent external projects are a post-MVP possibility. Those p
 
 ## Getting started
 
-Install Git and start Docker Desktop. No AI-provider registration or paid API key is needed for M0 or M1.1. From the repository root:
+Install Git and start Docker Desktop. No AI-provider registration or paid API key is needed for M0–M1.2. From the repository root:
 
 ```sh
 python3 scripts/init_local_env.py
-docker compose --env-file .env -f infrastructure/compose.yaml up --build -d api web
+docker compose --env-file .env -f infrastructure/compose.yaml up --build -d api worker web
 docker compose --env-file .env -f infrastructure/compose.yaml exec api python -m paw.cli bootstrap
 ```
 
@@ -128,7 +128,7 @@ curl --fail http://127.0.0.1:8000/api/v1/ready
 docker compose --env-file .env -f infrastructure/compose.yaml --profile test run --build --rm tests
 ```
 
-First bootstrap registers two verified nodes and one logical link with three real events. Repeating it leaves the same records and timestamps. The frontend is a labeled foundation shell, not a working analyzer or live dashboard. Database state persists in a Docker volume. Optional n8n is inactive by default.
+Foundation bootstrap registers the API, PostgreSQL and their link. The initialized Worker registers itself and its database link, bringing the normal installation to five lifecycle events. Repeating either leaves the same records and timestamps. The frontend is a labeled foundation shell, not a working analyzer or live dashboard. Database state persists in a Docker volume. Optional n8n is inactive by default.
 
 See [development and manual verification](docs/development.md), [architecture](docs/architecture.md) and [local security boundaries](docs/security.md). PAW's original code is available under the [MIT license](LICENSE); third-party services retain their own licenses.
 

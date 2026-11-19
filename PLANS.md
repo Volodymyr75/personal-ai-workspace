@@ -7,12 +7,12 @@ Updated: 2026-11-19
 - Introductory README published; repository connected to GitHub.
 - Blueprint v1.5, repository rules and M0 brief aligned with the owner discussion.
 - ADR-012 records the revised delivery and history boundary; ADR-013 clarifies operations, traceability and visualization without expanding M0.
-- M0 backend/API, migrations, registry bootstrap, web shell, local Compose and CI configuration implemented. Worker, agents, bots, integrated n8n workflows and online deployment remain unimplemented.
+- M0 backend/API, migrations, registry bootstrap, web shell, local Compose and CI configuration implemented. M1.2 adds a separate diagnostic Worker; agents, bots, integrated n8n workflows and online deployment remain unimplemented.
 - Local bootstrap persisted two verified nodes, one logical link and three actual registration events. These are private installation data in the Docker volume, not Git fixtures.
 
 ## M0 — repository foundation
 
-Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. This M0 scope is complete; the active task below is M1.1.
+Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. This M0 scope is complete; the active task below is M1.2.
 
 Implementation sequence completed:
 
@@ -42,7 +42,7 @@ Implementation sequence completed:
 
 | Milestone | Scope | Status |
 | --- | --- | --- |
-| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | M1.1 storage implemented; remaining slices not started |
+| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | M1.1 storage and M1.2 diagnostics implemented; analysis/AI not started |
 | M2 | Responsive English web workflow, history, results and error states | Not started |
 | M3 | Authenticated, idempotent n8n integration and reproducible core MVP | Not started |
 | M4 | Owner-only online deployment, targeted release checks, storage and backup/restore | Not started |
@@ -78,9 +78,9 @@ Nonblocking tooling notes: Starlette warns that its httpx test-client compatibil
 
 ## Recommended next task
 
-M1.2 only: durable run state and a separate Worker, with claim/lease/recovery semantics and offline execution tests. Agree the bounded slice with the owner before starting. Deterministic analysis belongs to M1.3 and model interpretation to M1.4.
+M1.3 only: bounded deterministic CSV tools, numerical fixtures and persisted report/chart artifacts. Discuss the slice before starting; model interpretation belongs to M1.4.
 
-## Active task — M1.1 projects and CSV storage
+## Completed task — M1.1 projects and CSV storage
 
 Complete: project create/list/detail, bounded CSV upload, durable local file storage and metadata, failure cleanup, API tests and documentation. No Worker, runs, analysis, LLM or frontend features in this slice. M1.2 will introduce durable execution; M1.3 deterministic analysis; M1.4 model interpretation.
 
@@ -92,3 +92,19 @@ Complete: project create/list/detail, bounded CSV upload, durable local file sto
 - Live migration from M0 completed; synthetic project/upload returned 201, checksum matched, metadata and original bytes survived API container restart. Bootstrap reported unchanged and the original three lifecycle events retained their timestamps.
 - Gitleaks staged-diff and history scans passed with no leaks.
 - GitHub CI passed all three jobs for implementation commit `8bdb9a5`: [M1.1 checks](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44604761110), including backend tests/live bootstrap, frontend lint/format/types/build and the secret scan. No browser/screen automation used.
+
+## Active task — M1.2 durable diagnostic execution
+
+Implemented and locally verified, authorized by owner. Scope: run API, PostgreSQL claims, bounded lease recovery,
+attempt fencing, separate Worker, diagnostic success/failure only. No CSV analysis or AI.
+Design: 15-second lease, heartbeat every 3 seconds, 45-second attempt deadline,
+maximum 3 claims. Explicit execution failures are terminal; only expired claims retry.
+Progress checkpoint: domain, migration 0003, repository, typed API, separate Worker,
+transactional Worker lifecycle registration, Compose and CI smoke implemented.
+Full Docker/PostgreSQL suite: 76 passed. Ruff and strict mypy passed (30 source files).
+Live diagnostic success/failure/idempotency smoke passed. Queued work survived an actual
+API restart. SIGKILL interrupted Worker; lease expiry produced a new attempt, which
+completed successfully. Original lifecycle events retained their timestamps; Worker
+added exactly its node/link events (five total), with no duplicates after restarts. Documentation and ADR-016 added; no new dependencies.
+Remaining: final diff/secret checks, commit/push and GitHub CI.
+Owner also confirmed the M1.1 sample upload manually before starting this slice.

@@ -1,6 +1,6 @@
-# Architecture — foundation and M1.1 storage
+# Architecture — foundation, storage and durable execution
 
-The backend is a modular monolith. M0 runs the API; a separate Worker will share its codebase/image in M1. The web shell uses Next.js and contains no fabricated operational data. PostgreSQL is internal to Compose. n8n is an inactive optional profile and is not registered by bootstrap.
+The backend is a modular monolith. API and Worker run as separate processes built from the same backend Dockerfile; M1.2 Worker executes bounded diagnostics. The web shell uses Next.js and contains no fabricated operational data. PostgreSQL is internal to Compose. n8n is an inactive optional profile and is not registered by bootstrap.
 
 ## Boundaries
 
@@ -37,3 +37,18 @@ Lifecycle history belongs in `system_events`. Execution belongs in future `runs`
 - Weekly Dependabot configuration covers backend `uv` and frontend `npm`, with no automatic merges. This is the single M1 dependency-update mechanism; the first scheduled run remains to be observed. Ecosystem values follow the [GitHub reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).
 
 See [ADR-014](adr/ADR-014-foundation-transactions.md) for implementation tradeoffs and [development.md](development.md) for checks.
+
+
+## Durable diagnostic execution (M1.2)
+
+The versioned run API accepts typed diagnostic inputs and a required UUID request ID.
+PostgreSQL stores `runs` and `run_events`. The separate Worker uses short transactional
+claims, attempt UUIDs, heartbeats, a hard deadline and bounded recovery. Finalization
+checks current ownership and commits its result/event together. Correlated structured
+logs expose identifiers only. No task contents enter architecture history.
+
+Worker registers its node and database link after actual schema initialization, through
+the same idempotent registry mechanism. It does not register a placeholder AI agent or
+report itself continuously healthy. Diagnostic execution has no file/LLM access.
+See [ADR-016](adr/ADR-016-durable-diagnostic-execution.md). Real analysis and artifacts
+remain M1.3; model/provider usage metadata belongs to the later AI slice.

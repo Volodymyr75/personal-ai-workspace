@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from sqlalchemy import Connection, Engine, insert, select, text
 
-from paw.domain.registry import API, API_DATABASE, DATABASE, safe_metadata
+from paw.domain.registry import API, API_DATABASE, DATABASE, Edge, Node, safe_metadata
 from paw.infrastructure.db.tables import edges, events, nodes
 
 # Serialize the small registry mutation path, including all bootstrap retries.
@@ -18,13 +18,14 @@ def append_registration(
     entity_key: str,
     occurred_at: datetime,
     after_state: dict[str, Any],
+    source: str = "command:bootstrap",
 ) -> None:
     connection.execute(
         insert(events).values(
             id=uuid4(),
             event_type=event_type,
             entity_key=entity_key,
-            source="command:bootstrap",
+            source=source,
             schema_version=1,
             occurred_at=occurred_at,
             idempotency_key=f"registration:{entity_key}",
@@ -47,11 +48,19 @@ class PostgresRegistry:
         self.engine = engine
 
     def bootstrap(self) -> int:
+        return self._register((API, DATABASE), API_DATABASE, "command:bootstrap")
+
+    def register_worker(self) -> int:
+        worker = Node("service:worker", "service", "Execution Worker", "python")
+        edge = Edge("link:worker:persists_to:postgres", worker.key, DATABASE.key, "persists_to")
+        return self._register((DATABASE, worker), edge, "service:worker")
+
+    def _register(self, definitions: tuple[Node, ...], edge: Edge, source: str) -> int:
         added = 0
         with self.engine.begin() as connection:
             connection.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": REGISTRY_LOCK})
             now: datetime = connection.execute(text("SELECT clock_timestamp()")).scalar_one()
-            for node in (API, DATABASE):
+            for node in definitions:
                 if connection.execute(select(nodes.c.key).where(nodes.c.key == node.key)).first():
                     assert_registration_exists(connection, node.key)
                     continue
@@ -72,9 +81,9 @@ class PostgresRegistry:
                     node.key,
                     now,
                     {**state, "registered_at": now.isoformat()},
+                    source,
                 )
                 added += 1
-            edge = API_DATABASE
             if connection.execute(select(edges.c.key).where(edges.c.key == edge.key)).first():
                 assert_registration_exists(connection, edge.key)
             else:
@@ -93,6 +102,7 @@ class PostgresRegistry:
                     edge.key,
                     now,
                     {**state, "registered_at": now.isoformat()},
+                    source,
                 )
                 added += 1
         return added

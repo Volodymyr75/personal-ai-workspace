@@ -51,6 +51,18 @@ services:
       retries: 20
     networks: [backend, outbound]
 
+  worker:
+    build:
+      context: ../backend
+      target: base
+    environment: *backend-env
+    command: [python, -m, paw.infrastructure.execution.worker]
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [backend]
+
   web:
     build:
       context: ../frontend
