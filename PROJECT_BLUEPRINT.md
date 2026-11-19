@@ -2,7 +2,7 @@
 ## Project Blueprint — Vision, Architecture, MVP and Delivery Plan
 
 **Version:** 1.5 (Operational boundaries and traceability, 2026-11-19)
-**Status:** Proposed architecture; not implemented
+**Status:** Target architecture; M0 local foundation implemented, later milestones planned (see PLANS.md)
 **Language:** Ukrainian/English design documentation; English code, UI and general reports; Ukrainian language-learning explanations
 **Repository:** `personal-ai-workspace` (working name)
 **Primary development assistant:** OpenAI Codex

@@ -1,6 +1,6 @@
 # Personal AI Workspace — documentation guide
 
-This repository is at the documentation stage. Blueprint v1.5 incorporates the owner's November 19, 2026 decisions. No application or deployment exists yet.
+Blueprint v1.5 incorporates the owner's November 19, 2026 decisions. The M0 local foundation is now implemented; later product workflows and online deployment remain planned. See PLANS.md for actual verification evidence.
 
 ## Read in this order
 
@@ -14,7 +14,7 @@ This repository is at the documentation stage. Blueprint v1.5 incorporates the o
 
 ## Delivery sequence
 
-The Git repository and introductory README already exist. Preserve their history. Implement M0 in small verifiable slices, then durable CSV analysis, responsive web use and an actual n8n workflow (M1–M3). Private online deployment is M4 and has its own access and deployment checks.
+The Git repository and introductory README already exist. Preserve their history. Review the implemented M0 foundation and its verification evidence, then implement durable CSV analysis, responsive web use and an actual n8n workflow (M1–M3). Private online deployment is M4 and has its own access and deployment checks.
 
 Record verified components and logical links from M0. Defer System Map, historical query APIs, growth charts and synthetic portfolio demonstrations to a separate post-MVP slice; never reconstruct missing facts by backdating.
 

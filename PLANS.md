@@ -7,14 +7,14 @@ Updated: 2026-11-19
 - Introductory README published; repository connected to GitHub.
 - Blueprint v1.5, repository rules and M0 brief aligned with the owner discussion.
 - ADR-012 records the revised delivery and history boundary; ADR-013 clarifies operations, traceability and visualization without expanding M0.
-- No backend, frontend, database, worker, bot, CI or deployment implemented.
-- No runtime system events exist yet. Documentation commits are not component-registration events.
+- M0 backend/API, migrations, registry bootstrap, web shell, local Compose and CI configuration implemented. Worker, agents, bots, integrated n8n workflows and online deployment remain unimplemented.
+- Local bootstrap persisted two verified nodes, one logical link and three actual registration events. These are private installation data in the Docker volume, not Git fixtures.
 
-## Next task: M0 — repository foundation
+## M0 — repository foundation
 
-Status: Not started. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. Do not implement M1 or later features during this task.
+Status: Implemented and locally validated; remote CI verification pending. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. Do not implement M1 or later features during this task.
 
-Suggested sequence within M0:
+Implementation sequence completed:
 
 1. Inspect available Python, Node and Docker tooling; select concrete supported versions, package managers and lockfiles. Add minimal FastAPI liveness/readiness contracts and development configuration.
 2. Add PostgreSQL, migrations and the three minimal history tables. Implement verified, transactional, idempotent node/link bootstrap and isolated database tests.
@@ -23,20 +23,20 @@ Suggested sequence within M0:
 
 ### M0 acceptance checklist
 
-- [ ] `/api/v1/health` reports liveness; `/api/v1/ready` reports actual database readiness, including failure behavior.
-- [ ] Health/readiness probes do not append lifecycle events; no telemetry or execution schema is introduced in M0.
-- [ ] Migrations create only `service_nodes`, `service_edges` and `system_events` for domain storage.
-- [ ] Bootstrap verifies the running API and database before registering their stable node keys and logical `persists_to` link.
-- [ ] Projection changes and safe full after-state events commit or roll back together.
-- [ ] Repeated and concurrent bootstrap do not duplicate nodes, links or events, or alter original registration timestamps.
-- [ ] Append-only history is enforced for ordinary application writes; timestamp/order and metadata rules are tested.
-- [ ] PostgreSQL integration tests validate database behavior; mocks are not the only evidence of atomicity or duplicate protection.
-- [ ] Compose exposes development services only on loopback and keeps the database internal with persistent storage.
-- [ ] Frontend clearly labels its foundation state and does not invent telemetry.
-- [ ] n8n profile is inactive by default; no workflow or integration is claimed to exist.
-- [ ] Reproducible dependency locks, formatter/linter/type checks, tests, frontend build and Compose validation pass where supported.
-- [ ] CI includes ordinary checks and one lightweight secrets scan; no broad scanner stack.
-- [ ] README has reproducible setup and manual verification steps; limitations and unexecuted checks are recorded honestly.
+- [x] `/api/v1/health` reports liveness; `/api/v1/ready` reports actual database readiness, including failure behavior.
+- [x] Health/readiness probes do not append lifecycle events; no telemetry or execution schema is introduced in M0.
+- [x] Migrations create only `service_nodes`, `service_edges` and `system_events` for domain storage.
+- [x] Bootstrap verifies the running API and database before registering their stable node keys and logical `persists_to` link.
+- [x] Projection changes and safe full after-state events commit or roll back together.
+- [x] Repeated and concurrent bootstrap do not duplicate nodes, links or events, or alter original registration timestamps.
+- [x] Append-only history is enforced for ordinary application writes; timestamp/order and metadata rules are tested.
+- [x] PostgreSQL integration tests validate database behavior; mocks are not the only evidence of atomicity or duplicate protection.
+- [x] Compose exposes development services only on loopback and keeps the database internal with persistent storage.
+- [x] Frontend clearly labels its foundation state and does not invent telemetry.
+- [x] n8n profile is inactive by default; no workflow or integration is claimed to exist.
+- [x] Reproducible dependency locks, formatter/linter/type checks, tests, frontend build and Compose validation pass where supported.
+- [x] CI includes ordinary checks and one lightweight secrets scan; no broad scanner stack.
+- [x] README has reproducible setup and manual verification steps; limitations and unexecuted checks are recorded honestly.
 
 ## Remaining milestones
 
@@ -63,3 +63,19 @@ Core MVP completion requires M0–M3, not visualization. Online availability req
 - **Later learning slice:** vocabulary draft representation and review UI; retain all readable source text and owner control.
 
 Do not collect credentials in documentation or fabricate progress. Update this plan with actual commands and acceptance evidence as implementation proceeds.
+
+## M0 verification evidence (2026-11-19)
+
+- Backend Ruff lint/format and strict mypy checks passed.
+- Unit/API tests: 13 passed offline; full Docker PostgreSQL suite: 23 passed, including concurrency, rollback, immutable history and server timestamps.
+- Frontend ESLint, Prettier, TypeScript and production build passed; both pages returned HTTP 200 with the expected foundation labels.
+- Compose configuration validated; API/web started with PostgreSQL internal and published ports on loopback. Bootstrap repeated without extra events.
+- Database outage/recovery and API restart smoke checks passed: readiness returned 503, liveness stayed 200, recovery restored readiness and registration IDs/timestamps remained unchanged.
+- Gitleaks staged-diff and existing-history scans passed with no leaks. Two descriptive n8n placeholders initially triggered generic-key detection; they were replaced by empty placeholders, with no scanner rule suppression. Remote CI verification is pending publication.
+- No browser/screen automation used. Responsive CSS is present; visual inspection on iPhone remains a manual check.
+
+Nonblocking tooling notes: Starlette warns that its httpx test-client compatibility path is deprecated; it currently passes all tests. ESLint 9 reports end of support; the pinned configuration passes, with a tooling refresh to be considered separately. Neither warning is a known exposed credential or failing application check.
+
+## Recommended next task
+
+M1, first slice: durable run state, validated CSV storage and deterministic analysis. Define leases/recovery and numerical fixtures before adding model interpretation. Do not implement Telegram, vocabulary, graphs or infrastructure automation in that slice.

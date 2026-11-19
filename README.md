@@ -4,7 +4,7 @@ A personal AI workspace for turning everyday files, questions, and ideas into us
 
 PAW is both a practical tool and a learning project: an opportunity to build experience with AI engineering, backend development, workflow automation, and reliable software delivery while automating recurring personal tasks.
 
-> **Status: planning and initial documentation.** No application, agents, integrations, or deployment have been implemented yet. Everything below describes the intended direction. Setup instructions will be added when the first working foundation is available.
+> **Status: M0 foundation implemented locally.** API health/readiness, PostgreSQL migrations, verified component/link bootstrap, append-only history, a Next.js foundation shell and automated checks are available. CSV analysis, agents, Worker, Telegram, integrated n8n workflows and online deployment are not implemented. The product workflows below remain planned.
 
 ## What PAW is for
 
@@ -112,6 +112,24 @@ Connections to independent external projects are a post-MVP possibility. Those p
 
 ## Getting started
 
-There is no runnable application yet. This first contribution documents the project direction; it does not implement M0. Installation, configuration, and verification commands will accompany the working foundation.
+Install Git and start Docker Desktop. No AI-provider registration or paid API key is needed for M0. From the repository root:
+
+```sh
+python3 scripts/init_local_env.py
+docker compose --env-file .env -f infrastructure/compose.yaml up --build -d api web
+docker compose --env-file .env -f infrastructure/compose.yaml exec api python -m paw.cli bootstrap
+```
+
+Wait until the API is healthy before bootstrap (`docker compose --env-file .env -f infrastructure/compose.yaml ps`). Open [the local workspace](http://127.0.0.1:3000) or [API documentation](http://127.0.0.1:8000/docs).
+
+```sh
+curl --fail http://127.0.0.1:8000/api/v1/health
+curl --fail http://127.0.0.1:8000/api/v1/ready
+docker compose --env-file .env -f infrastructure/compose.yaml --profile test run --build --rm tests
+```
+
+First bootstrap registers two verified nodes and one logical link with three real events. Repeating it leaves the same records and timestamps. The frontend is a labeled foundation shell, not a working analyzer or live dashboard. Database state persists in a Docker volume. Optional n8n is inactive by default.
+
+See [development and manual verification](docs/development.md), [architecture](docs/architecture.md) and [local security boundaries](docs/security.md). PAW's original code is available under the [MIT license](LICENSE); third-party services retain their own licenses.
 
 For the documentation reading order and implementation handoff, see [README_FIRST.md](README_FIRST.md). Repository working rules are in [AGENTS.md](AGENTS.md), and the M0 task brief is in [CODEX_START.md](CODEX_START.md).
