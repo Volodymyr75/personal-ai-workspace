@@ -82,7 +82,7 @@ M1.2 only: durable run state and a separate Worker, with claim/lease/recovery se
 
 ## Active task — M1.1 projects and CSV storage
 
-Implemented: project create/list/detail, bounded CSV upload, durable local file storage and metadata, failure cleanup, API tests and documentation. No Worker, runs, analysis, LLM or frontend features in this slice. M1.2 will introduce durable execution; M1.3 deterministic analysis; M1.4 model interpretation.
+Complete: project create/list/detail, bounded CSV upload, durable local file storage and metadata, failure cleanup, API tests and documentation. No Worker, runs, analysis, LLM or frontend features in this slice. M1.2 will introduce durable execution; M1.3 deterministic analysis; M1.4 model interpretation.
 
 - Migration 0002 adds one internal workspace, projects and files; existing lifecycle history remains intact.
 - CSV bounds and local persistence/recovery decisions are recorded in ADR-015.
@@ -90,4 +90,5 @@ Implemented: project create/list/detail, bounded CSV upload, durable local file 
 - Full Docker/PostgreSQL suite: 63 passed, including failed database/disk writes, orphan cleanup, restart and concurrent uploads. The existing test-client deprecation warning remains nonblocking.
 - Ruff lint/format and strict mypy passed (24 source files). `git diff --check` passed.
 - Live migration from M0 completed; synthetic project/upload returned 201, checksum matched, metadata and original bytes survived API container restart. Bootstrap reported unchanged and the original three lifecycle events retained their timestamps.
-- GitHub CI: pending publication of this slice. No browser/screen automation used.
+- Gitleaks staged-diff and history scans passed with no leaks.
+- GitHub CI passed all three jobs for implementation commit `8bdb9a5`: [M1.1 checks](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44604761110), including backend tests/live bootstrap, frontend lint/format/types/build and the secret scan. No browser/screen automation used.
