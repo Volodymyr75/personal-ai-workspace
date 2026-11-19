@@ -95,7 +95,7 @@ Complete: project create/list/detail, bounded CSV upload, durable local file sto
 
 ## Active task — M1.2 durable diagnostic execution
 
-Implemented and locally verified, authorized by owner. Scope: run API, PostgreSQL claims, bounded lease recovery,
+Complete, authorized by owner. Scope: run API, PostgreSQL claims, bounded lease recovery,
 attempt fencing, separate Worker, diagnostic success/failure only. No CSV analysis or AI.
 Design: 15-second lease, heartbeat every 3 seconds, 45-second attempt deadline,
 maximum 3 claims. Explicit execution failures are terminal; only expired claims retry.
@@ -106,5 +106,8 @@ Live diagnostic success/failure/idempotency smoke passed. Queued work survived a
 API restart. SIGKILL interrupted Worker; lease expiry produced a new attempt, which
 completed successfully. Original lifecycle events retained their timestamps; Worker
 added exactly its node/link events (five total), with no duplicates after restarts. Documentation and ADR-016 added; no new dependencies.
-Remaining: final diff/secret checks, commit/push and GitHub CI.
+Final diff checks and Gitleaks staged/history scans passed with no leaks.
+Implementation commit `81a88f2` is pushed. [GitHub CI](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44609974845)
+passed all three jobs, including the live diagnostic Worker smoke, backend/PostgreSQL
+tests, frontend checks/build and secret scan. M1.3 has not started.
 Owner also confirmed the M1.1 sample upload manually before starting this slice.

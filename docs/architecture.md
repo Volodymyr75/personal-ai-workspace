@@ -26,7 +26,7 @@ Future mutation methods must use the same transaction/lock discipline, stable id
 
 ## Event separation
 
-Lifecycle history belongs in `system_events`. Execution belongs in future `runs`/`run_events` (M1). Recurring health, deployment and backup observations will use feature-specific storage later. React Flow layout and rendering choices remain outside the domain.
+Lifecycle history belongs in `system_events`. Execution belongs in `runs`/`run_events` (implemented for diagnostics in M1.2). Recurring health, deployment and backup observations will use feature-specific storage later. React Flow layout and rendering choices remain outside the domain.
 
 ## Runtime and dependency choices
 
