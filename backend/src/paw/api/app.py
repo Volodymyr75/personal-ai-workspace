@@ -12,6 +12,7 @@ from starlette.responses import JSONResponse
 
 from paw.api.catalog import router
 from paw.api.limits import BodyLimits
+from paw.api.runs import artifacts_router
 from paw.api.runs import router as runs_router
 from paw.config import Settings
 from paw.domain.files import Catalog, InputError, NotFound
@@ -52,12 +53,13 @@ def create_app(
             settings = Settings()
             engine = make_engine(settings)
             app.state.readiness = DatabaseReadiness(engine)
-            app.state.runs = PostgresRuns(engine)
+            app.state.runs = PostgresRuns(engine, LocalBlobStore(settings.artifact_root, "bin"))
             try:
                 actual_catalog = PostgresCatalog(engine, LocalBlobStore(settings.storage_root))
                 app.state.catalog = actual_catalog
                 try:
                     actual_catalog.reconcile()
+                    app.state.runs.reconcile_artifacts()
                 except (SQLAlchemyError, OSError):
                     logging.getLogger("paw").warning("upload_reconciliation_deferred")
                 yield
@@ -80,6 +82,7 @@ def create_app(
     app.add_middleware(BodyLimits)
     app.include_router(router)
     app.include_router(runs_router)
+    app.include_router(artifacts_router)
 
     @app.exception_handler(IdempotencyConflict)
     async def conflict(request: Request, exc: IdempotencyConflict) -> JSONResponse:

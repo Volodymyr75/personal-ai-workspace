@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Literal, Protocol
 from uuid import UUID
 
+from paw.domain.analysis import AnalysisSpec, Artifact, Bundle
+
 LEASE_SECONDS = 15
 HEARTBEAT_SECONDS = 3
 MAX_ATTEMPTS = 3
@@ -35,6 +37,8 @@ class Run:
     attempt_deadline: datetime | None
     error_code: str | None
     output: dict[str, str] | None
+    file_id: UUID | None = None
+    analysis: AnalysisSpec | None = None
 
 
 @dataclass(frozen=True)
@@ -55,9 +59,14 @@ class RunRepository(Protocol):
         correlation_id: UUID | None,
         delay_seconds: int,
         outcome: str,
+        file_id: UUID | None = None,
+        analysis: AnalysisSpec | None = None,
     ) -> Run: ...
     def get(self, run_id: UUID) -> Run: ...
     def events(self, run_id: UUID, after: int, limit: int) -> list[RunEvent]: ...
     def claim(self) -> Run | None: ...
     def heartbeat(self, run_id: UUID, attempt_id: UUID) -> bool: ...
     def finish(self, run_id: UUID, attempt_id: UUID, error_code: str | None) -> bool: ...
+
+    def publish(self, run_id: UUID, attempt_id: UUID, bundle: Bundle) -> bool: ...
+    def artifact(self, identity: UUID) -> tuple[Artifact, bytes]: ...

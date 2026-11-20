@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     db_user: str = "paw"
     db_password: SecretStr
     storage_root: Path = Path("/data/files")
+    artifact_root: Path = Path("/data/artifacts")
     api_url: str = "http://127.0.0.1:8000"
 
     @property

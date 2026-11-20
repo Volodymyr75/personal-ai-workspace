@@ -1,6 +1,6 @@
 # PAW delivery plan
 
-Updated: 2026-11-19
+Updated: 2026-11-20
 
 ## Current state
 
@@ -12,7 +12,7 @@ Updated: 2026-11-19
 
 ## M0 — repository foundation
 
-Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. This M0 scope is complete; the active task below is M1.2.
+Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. This M0 scope is complete; the active task below is M1.3.
 
 Implementation sequence completed:
 
@@ -42,7 +42,7 @@ Implementation sequence completed:
 
 | Milestone | Scope | Status |
 | --- | --- | --- |
-| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | M1.1 storage and M1.2 diagnostics implemented; analysis/AI not started |
+| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | M1.1–M1.3 implemented; AI interpretation not started |
 | M2 | Responsive English web workflow, history, results and error states | Not started |
 | M3 | Authenticated, idempotent n8n integration and reproducible core MVP | Not started |
 | M4 | Owner-only online deployment, targeted release checks, storage and backup/restore | Not started |
@@ -78,7 +78,7 @@ Nonblocking tooling notes: Starlette warns that its httpx test-client compatibil
 
 ## Recommended next task
 
-M1.3 only: bounded deterministic CSV tools, numerical fixtures and persisted report/chart artifacts. Discuss the slice before starting; model interpretation belongs to M1.4.
+M1.4: provider-neutral model interpretation of verified tool results, offline fake-provider tests and bounded usage. Discuss provider, data-sharing boundaries and spending limits before implementation. No provider account or API key is needed for M1.3.
 
 ## Completed task — M1.1 projects and CSV storage
 
@@ -93,7 +93,7 @@ Complete: project create/list/detail, bounded CSV upload, durable local file sto
 - Gitleaks staged-diff and history scans passed with no leaks.
 - GitHub CI passed all three jobs for implementation commit `8bdb9a5`: [M1.1 checks](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44604761110), including backend tests/live bootstrap, frontend lint/format/types/build and the secret scan. No browser/screen automation used.
 
-## Active task — M1.2 durable diagnostic execution
+## Completed task — M1.2 durable diagnostic execution
 
 Complete, authorized by owner. Scope: run API, PostgreSQL claims, bounded lease recovery,
 attempt fencing, separate Worker, diagnostic success/failure only. No CSV analysis or AI.
@@ -111,3 +111,30 @@ Implementation commit `81a88f2` is pushed. [GitHub CI](https://github.com/Volody
 passed all three jobs, including the live diagnostic Worker smoke, backend/PostgreSQL
 tests, frontend checks/build and secret scan. M1.3 has not started.
 Owner also confirmed the M1.1 sample upload manually before starting this slice.
+
+
+## Active task — M1.3 deterministic CSV analysis
+
+Authorized 2026-11-20 after the owner verified M1.2. Scope: explicit typed CSV analysis,
+numeric summaries, bounded grouping, optional ratios, one static chart, persisted
+report/chart artifacts and API retrieval. No LLM, agent registration or frontend changes.
+Preserve diagnostic requests and existing run IDs/history.
+
+Implementation plan: migration for analysis inputs/artifact metadata; deterministic
+Pandas tools with fixtures; process-bounded execution with lease heartbeats; atomic
+fenced artifact publication using the local volume; retrieval API and full checks.
+Limits/semantics: explicit numeric columns (max 8), one optional group column (max 100
+report groups), one selected chart metric (max 30 plotted groups, disclosed in report).
+Empty/whitespace cells are missing; invalid numeric values fail, not silently coerce.
+Ratios use summed paired nonmissing rows, with zero denominator returning null.
+Progress checkpoint: migration 0004, typed analysis API, bounded Pandas/Matplotlib
+pipeline, child-process execution, fenced local artifact publication/recovery, artifact
+retrieval and tests implemented. ADR-017 records semantics and persistence limits.
+51 unit tests and final full Docker/PostgreSQL suite of 97 tests passed. Strict mypy passed
+(35 source files). Synthetic PNG visually inspected; report values checked against fixtures.
+Ruff lint/format and mypy passed. Live migration and CSV upload -> analysis -> JSON/PNG
+smoke passed, as did the existing diagnostic smoke. Persisted artifacts survived a
+rebuild/restart, previous upload metadata remained intact and lifecycle history stayed
+at five events. Documentation includes the complete manual API request and expected values.
+Pending: final secret scan, commit/push and GitHub CI.
+The owner confirmed M1.2 manually before authorizing this slice.

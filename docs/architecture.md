@@ -1,6 +1,6 @@
 # Architecture — foundation, storage and durable execution
 
-The backend is a modular monolith. API and Worker run as separate processes built from the same backend Dockerfile; M1.2 Worker executes bounded diagnostics. The web shell uses Next.js and contains no fabricated operational data. PostgreSQL is internal to Compose. n8n is an inactive optional profile and is not registered by bootstrap.
+The backend is a modular monolith. API and Worker run as separate processes built from the same backend Dockerfile; Worker executes bounded diagnostics and deterministic CSV analysis. The web shell uses Next.js and contains no fabricated operational data. PostgreSQL is internal to Compose. n8n is an inactive optional profile and is not registered by bootstrap.
 
 ## Boundaries
 
@@ -50,5 +50,6 @@ logs expose identifiers only. No task contents enter architecture history.
 Worker registers its node and database link after actual schema initialization, through
 the same idempotent registry mechanism. It does not register a placeholder AI agent or
 report itself continuously healthy. Diagnostic execution has no file/LLM access.
-See [ADR-016](adr/ADR-016-durable-diagnostic-execution.md). Real analysis and artifacts
-remain M1.3; model/provider usage metadata belongs to the later AI slice.
+See [ADR-016](adr/ADR-016-durable-diagnostic-execution.md). M1.3 adds typed CSV analysis, bounded child-process calculation and fenced local report/chart
+publication; see [ADR-017](adr/ADR-017-deterministic-analysis-and-artifacts.md). Model/provider
+usage metadata belongs to the later AI slice.

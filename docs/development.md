@@ -119,3 +119,61 @@ failures do not retry. Restarting Worker does not add duplicate lifecycle events
 `/ready` describes API database readiness, not Worker availability. While Worker is
 stopped or the Mac sleeps, work may remain queued until it runs again.
 See [ADR-016](adr/ADR-016-durable-diagnostic-execution.md) for guarantees and limitations.
+
+## M1.3 manual CSV analysis
+
+No AI credentials are required. Start `api worker web` with the current build. Upload
+`examples/sample_campaigns.csv` as in M1.1, then use `POST /api/v1/runs` in API docs.
+Select the `csv_analysis` request variant and supply the project/file IDs returned by
+those operations, plus a new request UUID:
+
+```json
+{
+  "project_id": "<your-project-uuid>",
+  "request_id": "<new-request-uuid>",
+  "task_type": "csv_analysis",
+  "input": {
+    "file_id": "<uploaded-file-uuid>",
+    "numeric_columns": ["impressions", "clicks", "cost"],
+    "group_by": "campaign",
+    "chart_column": "cost",
+    "ratios": [
+      {"name": "CTR", "numerator": "clicks", "denominator": "impressions", "scale": 100},
+      {"name": "CPC", "numerator": "cost", "denominator": "clicks", "scale": 1}
+    ]
+  }
+}
+```
+
+Expect 202 and a run ID. Poll `GET /api/v1/runs/{run_id}` until completed; its `output`
+contains `report_artifact_id` and `chart_artifact_id`. Download each using
+`GET /api/v1/artifacts/{artifact_id}`: report is JSON, chart is PNG. Open the PNG in a
+normal image viewer. A completed analysis means deterministic calculation only, not
+AI interpretation. The web frontend still has no upload/results controls.
+
+Expected sample totals: impressions 3500, clicks 130, cost 53. Synthetic Search totals
+are 1500/70/35, CTR approximately 4.666667%, CPC 0.5. Synthetic Social totals are
+2000/60/18, CTR 3%, CPC 0.3. The chart plots grouped cost: 35 and 18.
+
+For a generic CSV, select 1–8 numeric columns explicitly and one of them as the chart
+column. `group_by` is optional; omitting it gives one aggregate over all rows. Ratios
+are optional. Empty/whitespace values are missing; invalid numeric strings fail the
+run. All-missing sums and ratios with zero denominator return null. Reports retain
+up to 100 groups; the chart shows at most 30, explicitly disclosed. See
+[ADR-017](adr/ADR-017-deterministic-analysis-and-artifacts.md) for all semantics/limits.
+
+Repeat an identical request UUID/input to get the same run; use a new UUID for a new
+analysis. A missing column produces `failed/unknown_column`. A file from a different
+project is rejected with 404 before enqueue. API input errors return 422. Dataset
+contents, column values and filesystem paths are not included in error messages.
+
+Run `python3 scripts/smoke_analysis.py` for synthetic upload/calculation/download checks.
+It creates a synthetic project and run without reading private sources. Restart API and
+Worker, then repeat the artifact GETs: downloads remain available with the same IDs.
+Originals and artifacts live in distinct `file_data` and `artifact_data` volumes;
+preserve both alongside PostgreSQL. Never reset volumes casually.
+
+Native Matplotlib checks may use `MPLCONFIGDIR=/tmp/paw-matplotlib` to keep font caches
+in a writable directory. Container builds set this automatically. The Linux child has
+30-second wall-clock, 25-second CPU and 2 GiB virtual-memory bounds; failed/interrupted
+attempts cannot overwrite already published artifacts.

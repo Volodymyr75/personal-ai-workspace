@@ -4,7 +4,7 @@ A personal AI workspace for turning everyday files, questions, and ideas into us
 
 PAW is both a practical tool and a learning project: an opportunity to build experience with AI engineering, backend development, workflow automation, and reliable software delivery while automating recurring personal tasks.
 
-> **Status: M0, M1.1 CSV storage and M1.2 diagnostic execution implemented locally.** Projects, validated uploads, persistent metadata and durable diagnostic runs are available through the API. A separate Worker supports leases and bounded recovery; health/readiness, component history and the Next.js foundation shell remain available. CSV analysis, AI agents, upload/run UI, Telegram, integrated n8n workflows and online deployment are not implemented. The complete product workflows below remain planned.
+> **Status: deterministic CSV analysis implemented locally through M1.3.** Projects, validated uploads, durable runs, numeric summaries, grouped sums/ratios and persisted JSON reports/PNG charts are available through the API. A separate Worker supports leases and bounded recovery. The web interface remains a foundation shell. AI interpretation/agents, upload/run UI, Telegram, integrated n8n workflows and online deployment are not implemented. The complete product workflows below remain planned.
 
 ## What PAW is for
 
@@ -112,7 +112,7 @@ Connections to independent external projects are a post-MVP possibility. Those p
 
 ## Getting started
 
-Install Git and start Docker Desktop. No AI-provider registration or paid API key is needed for M0–M1.2. From the repository root:
+Install Git and start Docker Desktop. No AI-provider registration or paid API key is needed for M0–M1.3. From the repository root:
 
 ```sh
 python3 scripts/init_local_env.py
