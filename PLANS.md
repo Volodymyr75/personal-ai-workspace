@@ -115,7 +115,7 @@ Owner also confirmed the M1.1 sample upload manually before starting this slice.
 
 ## Active task — M1.3 deterministic CSV analysis
 
-Authorized 2026-11-20 after the owner verified M1.2. Scope: explicit typed CSV analysis,
+Complete, authorized 2026-11-20 after the owner verified M1.2. Scope: explicit typed CSV analysis,
 numeric summaries, bounded grouping, optional ratios, one static chart, persisted
 report/chart artifacts and API retrieval. No LLM, agent registration or frontend changes.
 Preserve diagnostic requests and existing run IDs/history.
@@ -136,5 +136,8 @@ Ruff lint/format and mypy passed. Live migration and CSV upload -> analysis -> J
 smoke passed, as did the existing diagnostic smoke. Persisted artifacts survived a
 rebuild/restart, previous upload metadata remained intact and lifecycle history stayed
 at five events. Documentation includes the complete manual API request and expected values.
-Pending: final secret scan, commit/push and GitHub CI.
+Final staged-diff/history Gitleaks scans passed with no leaks. Implementation commit
+`63e2ec4` is pushed; [GitHub CI](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44701675383)
+passed for this exact commit, including backend tests, live diagnostic and CSV-analysis
+smokes, frontend checks/build and secret scan. M1.4 has not started.
 The owner confirmed M1.2 manually before authorizing this slice.
