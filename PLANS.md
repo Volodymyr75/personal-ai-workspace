@@ -8,11 +8,11 @@ Updated: 2026-11-20
 - Blueprint v1.5, repository rules and M0 brief aligned with the owner discussion.
 - ADR-012 records the revised delivery and history boundary; ADR-013 clarifies operations, traceability and visualization without expanding M0.
 - M0 backend/API, migrations, registry bootstrap, web shell, local Compose and CI configuration implemented. M1.2 adds a separate diagnostic Worker; agents, bots, integrated n8n workflows and online deployment remain unimplemented.
-- Local bootstrap persisted two verified nodes, one logical link and three actual registration events. These are private installation data in the Docker volume, not Git fixtures.
+- Foundation bootstrap persisted API/PostgreSQL and their link; initialized Worker added its node/link, bringing the installation to five actual lifecycle events. These are private installation data in the Docker volume, not Git fixtures.
 
 ## M0 — repository foundation
 
-Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. This M0 scope is complete; the active task below is M1.3.
+Status: Complete. Local checks and GitHub Actions passed for implementation commit `ce6e04b`. Use [CODEX_START.md](CODEX_START.md) as the implementation brief and [ADR-012](docs/adr/ADR-012-delivery-and-history.md) for the history boundary. Also read [ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md) for event separation. This M0 scope is complete; the next planned task is M1.4 below.
 
 Implementation sequence completed:
 
@@ -78,11 +78,13 @@ Nonblocking tooling notes: Starlette warns that its httpx test-client compatibil
 
 ## Recommended next task
 
-M1.4: provider-neutral model interpretation of verified tool results, offline fake-provider tests and bounded usage. Discuss provider, data-sharing boundaries and spending limits before implementation. No provider account or API key is needed for M1.3.
+M1.4: support a batch of related Google Ads CSV exports from one account for a reporting period. First agree a small implementation slice in the new chat; implementation is not authorized by this documentation handoff alone. See [HANDOFF.md](HANDOFF.md).
+
+Owner-approved sequencing refinement (2026-11-20): real Google Ads import is M1.4; provider-neutral AI interpretation/recommendations move to M1.5. This changes slice order, not the overall architecture or M1 completion criteria. Discuss provider, data-sharing boundaries and spending limits before M1.5. Automatic collection/scheduling is later, separately scoped work.
 
 ## Completed task — M1.1 projects and CSV storage
 
-Complete: project create/list/detail, bounded CSV upload, durable local file storage and metadata, failure cleanup, API tests and documentation. No Worker, runs, analysis, LLM or frontend features in this slice. M1.2 will introduce durable execution; M1.3 deterministic analysis; M1.4 model interpretation.
+Complete: project create/list/detail, bounded CSV upload, durable local file storage and metadata, failure cleanup, API tests and documentation. No Worker, runs, analysis, LLM or frontend features in this slice. M1.2 will introduce durable execution; M1.3 deterministic analysis; model interpretation is now planned as M1.5.
 
 - Migration 0002 adds one internal workspace, projects and files; existing lifecycle history remains intact.
 - CSV bounds and local persistence/recovery decisions are recorded in ADR-015.
@@ -113,7 +115,7 @@ tests, frontend checks/build and secret scan. M1.3 has not started.
 Owner also confirmed the M1.1 sample upload manually before starting this slice.
 
 
-## Active task — M1.3 deterministic CSV analysis
+## Completed task — M1.3 deterministic CSV analysis
 
 Complete, authorized 2026-11-20 after the owner verified M1.2. Scope: explicit typed CSV analysis,
 numeric summaries, bounded grouping, optional ratios, one static chart, persisted
@@ -141,3 +143,21 @@ Final staged-diff/history Gitleaks scans passed with no leaks. Implementation co
 passed for this exact commit, including backend tests, live diagnostic and CSV-analysis
 smokes, frontend checks/build and secret scan. M1.4 has not started.
 The owner confirmed M1.2 manually before authorizing this slice.
+
+
+## Planned task — M1.4 Google Ads export batches
+
+Status: discussion/handoff only; no importer changes implemented.
+
+- One Google Ads account, multiple campaigns, several related CSVs per reporting period.
+- Intended recurring workflow: obtain reports (for example weekly), normalize/validate, calculate evidence, pass relevant data to AI, retain conclusions and recommendations.
+- Recognize campaign summary, daily campaign, keyword and search-term reports. Preserve originals and source provenance; separate detail rows from totals used for reconciliation.
+- Handle report title/date preambles, Ukrainian headers, decimal commas, percentages, nonbreaking grouping spaces and missing markers such as `--`. Preserve fractional conversions.
+- Verify account scope, periods, currency and available join keys. Related files describe overlapping activity at different grains: never sum spend/clicks/impressions across report types or mix totals with detail. Flag mismatched periods/coverage rather than silently merging.
+- Current generic M1.1 uploader rejects these native exports; M1.3 is not evidence of Google Ads format support. Define the smallest compatible importer extension before changing code.
+- Conversions currently mean contact-page visits; preserve them as secondary data. Owner has no target conversion cost and does not want conversions to drive this initial analysis.
+- Main output is evidence-backed AI conclusions/recommendations. Charts are optional when useful; existing M1.3 always produces PNG, and making it optional is a future explicit change.
+- First validate manual CSV batches, then add AI interpretation (M1.5), then separately plan automated collection. Google Ads API/scheduled emails were discussed as options; neither is implemented or authorized here. Preserve n8n scheduling ownership.
+- Private sample exports were inspected locally and must stay outside Git. Create synthetic equivalents for tests. Account identity, business context and report batch/duplicate handling remain design questions.
+
+Next chat: read AGENTS.md, HANDOFF.md and this section; consult relevant Blueprint/ADR sections, confirm understanding and propose one bounded slice before implementation. No screen reading/browser control. Work incrementally and update the compact handoff at stage boundaries.
