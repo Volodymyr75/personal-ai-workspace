@@ -641,6 +641,7 @@ ADR-001–011 below are design summaries, not claims that separate ADR files or 
 
 - **[ADR-012](docs/adr/ADR-012-delivery-and-history.md)**: Single-owner online direction, deferred visualization, factual node/link history from M0, and later capture/language workflows.
 - **[ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md)**: Separate lifecycle, execution and operational data; future correlated usage and renderer-neutral views without expanding M0.
+- **[ADR-018](docs/adr/ADR-018-google-ads-json-batches.md)**: M1.4 local Google Ads JSON batches preserve report grains, exact decimals, provenance and coverage limitations before later evidence/AI processing.
 
 ## 18. Source and licensing references
 

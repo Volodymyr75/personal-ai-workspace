@@ -50,6 +50,141 @@ Docker tests use a separate `paw_test` database with temporary storage and a fre
 
 The integration suite verifies migrations, real readiness, concurrent bootstrap, retry idempotency, full event after-state, rollback after an injected failure, append-only enforcement and server-controlled timestamps. A missing historical event for an existing registry entry is rejected rather than backfilled.
 
+## Standalone M1.4 parser check (no API upload yet)
+
+From the repository root, using the installed backend virtual environment:
+
+```sh
+backend/.venv/bin/python -c 'from pathlib import Path; from paw.tools.google_ads_csv import parse_campaign_summary; r = parse_campaign_summary(Path("examples/google_ads_campaign_summary_synthetic.csv").read_bytes()); print(r.period_start, r.period_end, r.currency, len(r.details), len(r.totals)); print(r.warnings)'
+```
+
+Expected: `2026-11-01 2026-11-07 UAH 2 1`, with account scope and coverage unverified.
+Detail cost sums to 50.00; the separate total is 50.00, not additional spend.
+Summary markers are read from `Статус кампанії` or `Кампанія`; the normalized
+`summary_label` is separate from optional campaign identity. Conflicting labels
+fail with `ambiguous_summary`. Source cells remain unchanged. A blank/`--`
+campaign is permitted only for summaries, never for detail rows.
+This synthetic file is for the standalone parser; the existing upload API still
+requires a generic CSV without preambles. The parser does not persist originals.
+Explicit Ukrainian campaign-summary, campaign-daily, search-keyword and search-term
+profiles are supported. Unknown columns remain source text. One private aggregate,
+two private daily exports, one keyword and one search-term export were verified locally.
+Date ranges accept full Ukrainian dates or `DD.MM.YYYY`, separated by a spaced dash.
+Delimiter defaults to comma; semicolon requires an explicit argument.
+
+For the daily profile, run from the repository root:
+
+```sh
+backend/.venv/bin/python -c 'from pathlib import Path; from paw.tools.google_ads_csv import parse_campaign_daily; r = parse_campaign_daily(Path("examples/google_ads_campaign_daily_synthetic.csv").read_bytes()); print(r.report_type, len(r.details), len(r.totals), sum(x.cost for x in r.details)); print([x.day for x in r.totals])'
+```
+
+Expected: `campaign_daily 4 3 28.00`. The three summary dates are November 1,
+November 2 and `None` (whole-period summary). Each detail needs a `День` value in
+`YYYY-MM-DD` format within the inclusive preamble period. Blank/`--` dates are
+allowed only for summaries. Invalid/missing/out-of-period dates fail with
+`invalid_report_day`, `missing_report_day` or `report_day_out_of_period`.
+Missing days are not filled with zeroes. Duplicate campaign/day detail rows are
+preserved with `duplicate_daily_rows`; callers must resolve them before aggregating.
+Different dates/campaigns and repeated summary rows do not trigger this warning.
+Detail/summary discrepancies are retained without automatic reconciliation or
+blocking for incomplete coverage. These are pure parsers, not batch JSON assembly.
+
+For search keywords, run from the repository root:
+
+```sh
+backend/.venv/bin/python -c 'from pathlib import Path; from paw.tools.google_ads_csv import parse_search_keywords; r = parse_search_keywords(Path("examples/google_ads_search_keywords_synthetic.csv").read_bytes()); print(r.report_type, r.currency, len(r.details), len(r.totals), sum(x.cost for x in r.details)); print([(x.keyword, x.match_type) for x in r.details])'
+```
+
+Expected: `search_keywords UAH 2 1 150.00`, with keyword text `[synthetic exact]`
+and `"synthetic phrase"`, normalized match types `exact` and `phrase`.
+The exact title is `Звіт про ключові слова для пошуку`; detail rows additionally
+require `Ключове слово`, `Група оголошень` and `Тип відповідності`. Supported
+match labels are `Точна відповідність`, `Фразова відповідність`, `Широка відповідність`.
+Unknown match labels fail with `unsupported_match_type`; missing keyword/group
+values fail with `missing_keyword`/`missing_ad_group`. Quotes/brackets are preserved
+as keyword text, not used to infer match type. Status remains source text.
+Summary labels are recognized in keyword status, keyword or campaign columns.
+Repeated campaign/group/keyword/match tuples remain intact with `duplicate_keyword_rows`;
+no row is silently deleted or aggregated. Summaries and detail may differ in coverage.
+Row contracts are shared as `GoogleAdsRow`/`GoogleAdsReport` with explicit `report_type`.
+All public Google Ads examples now use `UAH` (hryvnia), matching the owner's account.
+Currency is read from the source; there is no conversion or default to UAH when absent.
+
+For search terms, run from the repository root:
+
+```sh
+backend/.venv/bin/python -c 'from pathlib import Path; from paw.tools.google_ads_csv import parse_search_terms; r = parse_search_terms(Path("examples/google_ads_search_terms_synthetic.csv").read_bytes()); print(r.report_type, r.currency, len(r.details), len(r.totals), sum(x.cost for x in r.details)); print([(x.summary_label, x.cost) for x in r.totals])'
+```
+
+Expected: `search_terms UAH 2 3 150.00`. Separate totals contain 150.00 UAH for
+visible terms, 250.00 for other terms and 400.00 for the account. Do not sum these
+overlapping totals or distribute other-term activity to invented queries/keywords.
+Parser output retains source numbers; cross-report coverage calculation belongs
+to the later batch/evidence step, and a discrepancy alone does not reject a file.
+Summary-only search-term exports are accepted with empty `details`; a file with
+neither detail nor summary rows fails with `empty_report`.
+
+The exact title is `Звіт "Пошукові терміни"`; required extra columns are
+`Пошуковий запит`, `Група оголошень`, `Тип відповідності`. Search term and optional
+linked keyword text remain verbatim; added/excluded status remains source text.
+Missing query/group values fail with `missing_search_term`/`missing_ad_group`.
+Missing/blank/`--` keyword links produce `keyword_link_unavailable`, never an inferred link.
+Exact/phrase/broad labels are supported, with exact/phrase close variants
+(` (наближений варіант)`) retained as `close_variant=True` plus original `match_type_text`.
+Unknown labels fail with `unsupported_match_type`. Summary labels are recognized
+in query/campaign columns. Summary rows have no query/keyword/match identity.
+Repeated campaign/group/query/keyword/match-label detail keys remain intact with
+`duplicate_search_term_rows`; nothing is silently aggregated or removed.
+
+## M1.4 local JSON batch
+
+From the repository root, with the backend environment installed:
+
+```sh
+backend/.venv/bin/python scripts/build_google_ads_batch.py \
+  --account-ref synthetic-account \
+  --period-start 2026-11-01 --period-end 2026-11-07 \
+  --source campaign_summary=examples/google_ads_campaign_summary_synthetic.csv \
+  --source campaign_daily=examples/google_ads_campaign_daily_synthetic.csv \
+  --source search_keywords=examples/google_ads_search_keywords_synthetic.csv \
+  --source search_terms=examples/google_ads_search_terms_synthetic.csv \
+  --output /tmp/paw-synthetic-batch.json
+```
+
+Use a new output path; an existing file fails with `output_exists` and is untouched.
+The checked-in `examples/google_ads_batch_synthetic.json` shows the same four sources
+with a fixed example UUID. CLI generates a UUID unless `--batch-id` is supplied.
+Private output must stay outside Git, alongside the original private exports.
+
+Inspect JSON with `python3 -m json.tool /tmp/paw-synthetic-batch.json`.
+Expect `schema_version: 1`, `UAH` and four separate report arrays. Daily example covers
+November 1–2 while the requested interval is November 1–7: it explicitly gets
+`source_period_differs` and keeps its actual period. This intentionally demonstrates
+that a requested period does not overwrite source facts. Example reports also have
+synthetic, independently chosen values; never add their spend together.
+
+The account reference is a local owner assertion, not a verified Google account ID.
+Sources are identified by SHA-256; row IDs include their source's physical line range.
+Decimal metrics are JSON strings (use Decimal, not float, for later arithmetic),
+counts remain integers and missing values null. Headers/raw cells are retained.
+Known currency values are listed in `observed_currencies`; batch `currency` is null
+if any source row lacks currency. Conflicting observed currencies fail rather than
+convert or combine. Identical source bytes fail with `duplicate_source`, even with
+different filenames. Multiple distinct reports of one type are kept and warned about.
+Source period mismatches, overlapping intervals and parser warnings are retained.
+
+Bounds: eight files, 40 MiB combined input, existing 10 MiB per-file parser limits,
+20 MiB encoded JSON. File types must be explicitly declared; no filename guessing.
+The CLI supports one explicit delimiter for all inputs. The application function
+`build_google_ads_batch(spec, sources)` supports per-source delimiters and returns
+bytes without writing files. Neither path uploads, calls AI, or modifies platform data.
+The package has `ai_ready: false`: it includes raw source text and needs a bounded
+deterministic evidence projection before later model submission. See ADR-018.
+
+CLI code checks from `backend`: `.venv/bin/ruff check . ../scripts/build_google_ads_batch.py`,
+`.venv/bin/ruff format --check . ../scripts/build_google_ads_batch.py`,
+`MYPYPATH=src .venv/bin/mypy ../scripts/build_google_ads_batch.py`.
+
 ## M1.1 manual CSV check
 
 Open [API docs](http://127.0.0.1:8000/docs). Use **Try it out** on `POST /api/v1/projects` with `{"name":"CSV practice","description":"Synthetic example"}`. Copy the returned `id`, then use `POST /api/v1/files`: enter it as `project_id`, leave delimiter as comma and select `examples/sample_campaigns.csv` from this repository. A successful upload returns HTTP 201, three data rows, column count and a SHA-256 checksum.

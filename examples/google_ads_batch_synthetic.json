@@ -1,0 +1,883 @@
+{
+  "schema_version": 1,
+  "batch_id": "00000000-0000-0000-0000-000000000001",
+  "account": {
+    "local_ref": "synthetic-account",
+    "scope": "owner_asserted",
+    "google_ads_id": null
+  },
+  "requested_period": {
+    "start": "2026-11-01",
+    "end": "2026-11-07"
+  },
+  "currency": "UAH",
+  "observed_currencies": [
+    "UAH"
+  ],
+  "policies": {
+    "report_rows": "as_exported_not_filtered_to_requested_period",
+    "cross_report_metrics": "not_additive",
+    "campaign_identity": "source_names_only_not_stable_ids",
+    "decimal_encoding": "string",
+    "missing_values": "null_not_zero",
+    "source_text": "untrusted_data",
+    "original_bytes": "retained_separately_by_caller",
+    "ai_ready": false
+  },
+  "reports": {
+    "campaign_summary": [
+      {
+        "source_id": "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643",
+        "source_name": "google_ads_campaign_summary_synthetic.csv",
+        "source_size_bytes": 482,
+        "report_type": "campaign_summary",
+        "title": "Звіт про кампанію",
+        "period_text": "1 листопада 2026 р. – 7 листопада 2026 р.",
+        "period_start": "2026-11-01",
+        "period_end": "2026-11-07",
+        "matches_requested_period": true,
+        "currency": "UAH",
+        "headers": [
+          "Статус кампанії",
+          "Кампанія",
+          "Покази",
+          "Кліки",
+          "Вартість",
+          "Код валюти",
+          "Конверсії",
+          "CTR",
+          "Сер. ціна за клік"
+        ],
+        "delimiter": ",",
+        "warnings": [
+          "account_scope_unverified",
+          "coverage_unverified"
+        ],
+        "details": [
+          {
+            "row_id": "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643:4-4",
+            "line_start": 4,
+            "line_end": 4,
+            "raw_cells": [
+              "Увімкнено",
+              "Synthetic Alpha",
+              "1000",
+              "10",
+              "20,00",
+              "UAH",
+              "1,25",
+              "1,00%",
+              "2,00"
+            ],
+            "campaign": "Synthetic Alpha",
+            "impressions": 1000,
+            "clicks": 10,
+            "cost": "20.00",
+            "currency": "UAH",
+            "conversions": "1.25",
+            "ctr_percent": "1.00",
+            "average_cpc": "2.00",
+            "summary_label": null,
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643:5-5",
+            "line_start": 5,
+            "line_end": 5,
+            "raw_cells": [
+              "Увімкнено",
+              "Synthetic Beta",
+              "2000",
+              "20",
+              "30,00",
+              "UAH",
+              "--",
+              "1,00%",
+              "1,50"
+            ],
+            "campaign": "Synthetic Beta",
+            "impressions": 2000,
+            "clicks": 20,
+            "cost": "30.00",
+            "currency": "UAH",
+            "conversions": null,
+            "ctr_percent": "1.00",
+            "average_cpc": "1.50",
+            "summary_label": null,
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          }
+        ],
+        "totals": [
+          {
+            "row_id": "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643:6-6",
+            "line_start": 6,
+            "line_end": 6,
+            "raw_cells": [
+              "Усього: Кампанії",
+              "",
+              "3000",
+              "30",
+              "50,00",
+              "UAH",
+              "1,25",
+              "1,00%",
+              "1,67"
+            ],
+            "campaign": null,
+            "impressions": 3000,
+            "clicks": 30,
+            "cost": "50.00",
+            "currency": "UAH",
+            "conversions": "1.25",
+            "ctr_percent": "1.00",
+            "average_cpc": "1.67",
+            "summary_label": "Усього: Кампанії",
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          }
+        ]
+      }
+    ],
+    "campaign_daily": [
+      {
+        "source_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c",
+        "source_name": "google_ads_campaign_daily_synthetic.csv",
+        "source_size_bytes": 720,
+        "report_type": "campaign_daily",
+        "title": "Звіт про кампанію",
+        "period_text": "1 листопада 2026 р. – 2 листопада 2026 р.",
+        "period_start": "2026-11-01",
+        "period_end": "2026-11-02",
+        "matches_requested_period": false,
+        "currency": "UAH",
+        "headers": [
+          "День",
+          "Статус кампанії",
+          "Кампанія",
+          "Покази",
+          "Кліки",
+          "Вартість",
+          "Код валюти",
+          "Конверсії"
+        ],
+        "delimiter": ",",
+        "warnings": [
+          "account_scope_unverified",
+          "coverage_unverified"
+        ],
+        "details": [
+          {
+            "row_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:4-4",
+            "line_start": 4,
+            "line_end": 4,
+            "raw_cells": [
+              "2026-11-01",
+              "Увімкнено",
+              "Synthetic Alpha",
+              "100",
+              "2",
+              "4,00",
+              "UAH",
+              "0,25"
+            ],
+            "campaign": "Synthetic Alpha",
+            "impressions": 100,
+            "clicks": 2,
+            "cost": "4.00",
+            "currency": "UAH",
+            "conversions": "0.25",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": "2026-11-01",
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:5-5",
+            "line_start": 5,
+            "line_end": 5,
+            "raw_cells": [
+              "2026-11-02",
+              "Увімкнено",
+              "Synthetic Alpha",
+              "200",
+              "3",
+              "6,00",
+              "UAH",
+              "0,50"
+            ],
+            "campaign": "Synthetic Alpha",
+            "impressions": 200,
+            "clicks": 3,
+            "cost": "6.00",
+            "currency": "UAH",
+            "conversions": "0.50",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": "2026-11-02",
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:6-6",
+            "line_start": 6,
+            "line_end": 6,
+            "raw_cells": [
+              "2026-11-01",
+              "Увімкнено",
+              "Synthetic Beta",
+              "300",
+              "4",
+              "8,00",
+              "UAH",
+              "--"
+            ],
+            "campaign": "Synthetic Beta",
+            "impressions": 300,
+            "clicks": 4,
+            "cost": "8.00",
+            "currency": "UAH",
+            "conversions": null,
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": "2026-11-01",
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:7-7",
+            "line_start": 7,
+            "line_end": 7,
+            "raw_cells": [
+              "2026-11-02",
+              "Увімкнено",
+              "Synthetic Beta",
+              "400",
+              "5",
+              "10,00",
+              "UAH",
+              "0,00"
+            ],
+            "campaign": "Synthetic Beta",
+            "impressions": 400,
+            "clicks": 5,
+            "cost": "10.00",
+            "currency": "UAH",
+            "conversions": "0.00",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": "2026-11-02",
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          }
+        ],
+        "totals": [
+          {
+            "row_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:8-8",
+            "line_start": 8,
+            "line_end": 8,
+            "raw_cells": [
+              "2026-11-01",
+              "Усього: Кампанії",
+              "",
+              "400",
+              "6",
+              "12,00",
+              "UAH",
+              "0,25"
+            ],
+            "campaign": null,
+            "impressions": 400,
+            "clicks": 6,
+            "cost": "12.00",
+            "currency": "UAH",
+            "conversions": "0.25",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": "Усього: Кампанії",
+            "day": "2026-11-01",
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:9-9",
+            "line_start": 9,
+            "line_end": 9,
+            "raw_cells": [
+              "2026-11-02",
+              "Усього: Кампанії",
+              "",
+              "600",
+              "8",
+              "16,00",
+              "UAH",
+              "0,50"
+            ],
+            "campaign": null,
+            "impressions": 600,
+            "clicks": 8,
+            "cost": "16.00",
+            "currency": "UAH",
+            "conversions": "0.50",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": "Усього: Кампанії",
+            "day": "2026-11-02",
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:10-10",
+            "line_start": 10,
+            "line_end": 10,
+            "raw_cells": [
+              " --",
+              "Усього: Обліковий запис",
+              "",
+              "1000",
+              "14",
+              "28,00",
+              "UAH",
+              "0,75"
+            ],
+            "campaign": null,
+            "impressions": 1000,
+            "clicks": 14,
+            "cost": "28.00",
+            "currency": "UAH",
+            "conversions": "0.75",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": "Усього: Обліковий запис",
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          }
+        ]
+      }
+    ],
+    "search_keywords": [
+      {
+        "source_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd",
+        "source_name": "google_ads_search_keywords_synthetic.csv",
+        "source_size_bytes": 710,
+        "report_type": "search_keywords",
+        "title": "Звіт про ключові слова для пошуку",
+        "period_text": "1 листопада 2026 р. – 7 листопада 2026 р.",
+        "period_start": "2026-11-01",
+        "period_end": "2026-11-07",
+        "matches_requested_period": true,
+        "currency": "UAH",
+        "headers": [
+          "Статус ключового слова",
+          "Ключове слово",
+          "Тип відповідності",
+          "Кампанія",
+          "Група оголошень",
+          "Код валюти",
+          "Покази",
+          "Кліки",
+          "Вартість",
+          "Конверсії"
+        ],
+        "delimiter": ",",
+        "warnings": [
+          "account_scope_unverified",
+          "coverage_unverified"
+        ],
+        "details": [
+          {
+            "row_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+            "line_start": 4,
+            "line_end": 4,
+            "raw_cells": [
+              "Увімкнено",
+              "[synthetic exact]",
+              "Точна відповідність",
+              "Synthetic Alpha",
+              "Synthetic Group",
+              "UAH",
+              "100",
+              "5",
+              "50,00",
+              "0,75"
+            ],
+            "campaign": "Synthetic Alpha",
+            "impressions": 100,
+            "clicks": 5,
+            "cost": "50.00",
+            "currency": "UAH",
+            "conversions": "0.75",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": null,
+            "keyword": "[synthetic exact]",
+            "ad_group": "Synthetic Group",
+            "match_type": "exact",
+            "keyword_status": "Увімкнено",
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5",
+            "line_start": 5,
+            "line_end": 5,
+            "raw_cells": [
+              "Увімкнено",
+              "\"synthetic phrase\"",
+              "Фразова відповідність",
+              "Synthetic Beta",
+              "Synthetic Group",
+              "UAH",
+              "200",
+              "10",
+              "100,00",
+              "--"
+            ],
+            "campaign": "Synthetic Beta",
+            "impressions": 200,
+            "clicks": 10,
+            "cost": "100.00",
+            "currency": "UAH",
+            "conversions": null,
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": null,
+            "keyword": "\"synthetic phrase\"",
+            "ad_group": "Synthetic Group",
+            "match_type": "phrase",
+            "keyword_status": "Увімкнено",
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          }
+        ],
+        "totals": [
+          {
+            "row_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6",
+            "line_start": 6,
+            "line_end": 6,
+            "raw_cells": [
+              "Усього: Обліковий запис",
+              "",
+              " --",
+              " --",
+              " --",
+              "UAH",
+              "300",
+              "15",
+              "150,00",
+              "0,75"
+            ],
+            "campaign": null,
+            "impressions": 300,
+            "clicks": 15,
+            "cost": "150.00",
+            "currency": "UAH",
+            "conversions": "0.75",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": "Усього: Обліковий запис",
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          }
+        ]
+      }
+    ],
+    "search_terms": [
+      {
+        "source_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028",
+        "source_name": "google_ads_search_terms_synthetic.csv",
+        "source_size_bytes": 976,
+        "report_type": "search_terms",
+        "title": "Звіт \"Пошукові терміни\"",
+        "period_text": "1 листопада 2026 р. – 7 листопада 2026 р.",
+        "period_start": "2026-11-01",
+        "period_end": "2026-11-07",
+        "matches_requested_period": true,
+        "currency": "UAH",
+        "headers": [
+          "Пошуковий запит",
+          "Тип відповідності",
+          "Додано або виключено",
+          "Кампанія",
+          "Група оголошень",
+          "Ключове слово",
+          "Код валюти",
+          "Покази",
+          "Кліки",
+          "Вартість",
+          "Конверсії"
+        ],
+        "delimiter": ",",
+        "warnings": [
+          "account_scope_unverified",
+          "coverage_unverified"
+        ],
+        "details": [
+          {
+            "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+            "line_start": 4,
+            "line_end": 4,
+            "raw_cells": [
+              "synthetic query one",
+              "Точна відповідність (наближений варіант)",
+              "Немає",
+              "Synthetic Alpha",
+              "Synthetic Group",
+              "[synthetic keyword]",
+              "UAH",
+              "100",
+              "5",
+              "50,00",
+              "0,25"
+            ],
+            "campaign": "Synthetic Alpha",
+            "impressions": 100,
+            "clicks": 5,
+            "cost": "50.00",
+            "currency": "UAH",
+            "conversions": "0.25",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": null,
+            "keyword": "[synthetic keyword]",
+            "ad_group": "Synthetic Group",
+            "match_type": "exact",
+            "keyword_status": null,
+            "search_term": "synthetic query one",
+            "match_type_text": "Точна відповідність (наближений варіант)",
+            "close_variant": true,
+            "added_or_excluded": "Немає"
+          },
+          {
+            "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+            "line_start": 5,
+            "line_end": 5,
+            "raw_cells": [
+              "synthetic query two",
+              "Фразова відповідність",
+              "Додано",
+              "Synthetic Beta",
+              "Synthetic Group",
+              "\"synthetic phrase\"",
+              "UAH",
+              "200",
+              "10",
+              "100,00",
+              "0,50"
+            ],
+            "campaign": "Synthetic Beta",
+            "impressions": 200,
+            "clicks": 10,
+            "cost": "100.00",
+            "currency": "UAH",
+            "conversions": "0.50",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": null,
+            "day": null,
+            "keyword": "\"synthetic phrase\"",
+            "ad_group": "Synthetic Group",
+            "match_type": "phrase",
+            "keyword_status": null,
+            "search_term": "synthetic query two",
+            "match_type_text": "Фразова відповідність",
+            "close_variant": false,
+            "added_or_excluded": "Додано"
+          }
+        ],
+        "totals": [
+          {
+            "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6",
+            "line_start": 6,
+            "line_end": 6,
+            "raw_cells": [
+              "Усього: Пошукові терміни",
+              " --",
+              "",
+              " --",
+              " --",
+              "",
+              "UAH",
+              "300",
+              "15",
+              "150,00",
+              "0,75"
+            ],
+            "campaign": null,
+            "impressions": 300,
+            "clicks": 15,
+            "cost": "150.00",
+            "currency": "UAH",
+            "conversions": "0.75",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": "Усього: Пошукові терміни",
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:7-7",
+            "line_start": 7,
+            "line_end": 7,
+            "raw_cells": [
+              "Усього: Інші пошукові терміни",
+              " --",
+              "",
+              " --",
+              " --",
+              "",
+              "UAH",
+              "700",
+              "25",
+              "250,00",
+              "1,00"
+            ],
+            "campaign": null,
+            "impressions": 700,
+            "clicks": 25,
+            "cost": "250.00",
+            "currency": "UAH",
+            "conversions": "1.00",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": "Усього: Інші пошукові терміни",
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          },
+          {
+            "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+            "line_start": 8,
+            "line_end": 8,
+            "raw_cells": [
+              "Усього: Обліковий запис",
+              " --",
+              "",
+              " --",
+              " --",
+              "",
+              "UAH",
+              "1000",
+              "40",
+              "400,00",
+              "1,75"
+            ],
+            "campaign": null,
+            "impressions": 1000,
+            "clicks": 40,
+            "cost": "400.00",
+            "currency": "UAH",
+            "conversions": "1.75",
+            "ctr_percent": null,
+            "average_cpc": null,
+            "summary_label": "Усього: Обліковий запис",
+            "day": null,
+            "keyword": null,
+            "ad_group": null,
+            "match_type": null,
+            "keyword_status": null,
+            "search_term": null,
+            "match_type_text": null,
+            "close_variant": null,
+            "added_or_excluded": null
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "code": "account_scope_unverified",
+      "source_ids": [
+        "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643"
+      ]
+    },
+    {
+      "code": "coverage_unverified",
+      "source_ids": [
+        "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643"
+      ]
+    },
+    {
+      "code": "source_period_differs",
+      "source_ids": [
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c"
+      ]
+    },
+    {
+      "code": "account_scope_unverified",
+      "source_ids": [
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c"
+      ]
+    },
+    {
+      "code": "coverage_unverified",
+      "source_ids": [
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c"
+      ]
+    },
+    {
+      "code": "account_scope_unverified",
+      "source_ids": [
+        "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd"
+      ]
+    },
+    {
+      "code": "coverage_unverified",
+      "source_ids": [
+        "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd"
+      ]
+    },
+    {
+      "code": "account_scope_unverified",
+      "source_ids": [
+        "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028"
+      ]
+    },
+    {
+      "code": "coverage_unverified",
+      "source_ids": [
+        "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028"
+      ]
+    },
+    {
+      "code": "overlapping_report_periods",
+      "source_ids": [
+        "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643",
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c"
+      ]
+    },
+    {
+      "code": "overlapping_report_periods",
+      "source_ids": [
+        "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643",
+        "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd"
+      ]
+    },
+    {
+      "code": "overlapping_report_periods",
+      "source_ids": [
+        "sha256:34d550572dfb7d57825d1e4ee07a00f54dc7cad5fea13e6986df17439535c643",
+        "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028"
+      ]
+    },
+    {
+      "code": "overlapping_report_periods",
+      "source_ids": [
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c",
+        "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd"
+      ]
+    },
+    {
+      "code": "overlapping_report_periods",
+      "source_ids": [
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c",
+        "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028"
+      ]
+    },
+    {
+      "code": "overlapping_report_periods",
+      "source_ids": [
+        "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd",
+        "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028"
+      ]
+    }
+  ]
+}

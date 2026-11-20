@@ -141,13 +141,13 @@ at five events. Documentation includes the complete manual API request and expec
 Final staged-diff/history Gitleaks scans passed with no leaks. Implementation commit
 `63e2ec4` is pushed; [GitHub CI](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44701675383)
 passed for this exact commit, including backend tests, live diagnostic and CSV-analysis
-smokes, frontend checks/build and secret scan. M1.4 has not started.
+smokes, frontend checks/build and secret scan. M1.4 progress is recorded below.
 The owner confirmed M1.2 manually before authorizing this slice.
 
 
 ## Planned task — M1.4 Google Ads export batches
 
-Status: discussion/handoff only; no importer changes implemented.
+Status: four standalone parsers and local JSON batch assembly implemented, authorized 2026-11-20. Durable API batch import remains planned.
 
 - One Google Ads account, multiple campaigns, several related CSVs per reporting period.
 - Intended recurring workflow: obtain reports (for example weekly), normalize/validate, calculate evidence, pass relevant data to AI, retain conclusions and recommendations.
@@ -159,5 +159,65 @@ Status: discussion/handoff only; no importer changes implemented.
 - Main output is evidence-backed AI conclusions/recommendations. Charts are optional when useful; existing M1.3 always produces PNG, and making it optional is a future explicit change.
 - First validate manual CSV batches, then add AI interpretation (M1.5), then separately plan automated collection. Google Ads API/scheduled emails were discussed as options; neither is implemented or authorized here. Preserve n8n scheduling ownership.
 - Private sample exports were inspected locally and must stay outside Git. Create synthetic equivalents for tests. Account identity, business context and report batch/duplicate handling remain design questions.
+- Owner confirmed the target flow: period-based CSV batch -> normalized JSON package with separate report grains/provenance -> deterministic evidence -> AI analysis/recommendations. Preserve originals. Incomplete Google detail is a coverage limitation, not automatically an import error: retain totals and disclosed detail separately, expose any computable undisclosed remainder without inventing allocation, and avoid blocking all analysis solely for incomplete coverage. Do not assume the cause of unexplained discrepancies. Automated acquisition remains a later separately scoped integration.
 
-Next chat: read AGENTS.md, HANDOFF.md and this section; consult relevant Blueprint/ADR sections, confirm understanding and propose one bounded slice before implementation. No screen reading/browser control. Work incrementally and update the compact handoff at stage boundaries.
+### M1.4 first slice — standalone campaign summary parser
+
+- Added framework-independent report/row contracts and a pure bounded parser, with no API, database, Worker or existing generic CSV changes.
+- Explicit Ukrainian campaign-summary profile: exact report title, two preamble rows, required campaign/impressions/clicks/cost columns. Daily and known keyword/search-term grain columns are rejected. Unknown columns remain raw text; this is not universal Google Ads export support.
+- Parses Ukrainian full dates or `DD.MM.YYYY` ranges, decimal commas, correctly grouped spaces/NBSP/narrow NBSP, percentages and `--`/blank missing values. Decimal money/conversions preserve fractional values; invalid/negative/nonfinite metrics fail. Original headers/cells, physical line ranges and source hash are retained. Caller remains responsible for original-byte persistence.
+- Detail and `Усього:` rows are separate. No aggregation, joins, deduplication or reconciliation is performed. Mixed currencies fail; missing currency, account identity and coverage remain explicitly unverified.
+- Synthetic fixtures only; no private exports read or used to derive test contents. Public manual example: `examples/google_ads_campaign_summary_synthetic.csv`.
+- Verification: 41 new parser tests; 92 native unit tests and 138 full Docker/PostgreSQL tests passed. Ruff lint/format and strict mypy passed. Existing Starlette warning remains nonblocking. Manual example and secret scan results are recorded in HANDOFF.
+
+Next slice: agree batch identity/account assertion, period/currency compatibility and duplicate rules before implementing batch persistence/API. Extend other report profiles incrementally. No screen reading/browser control.
+
+### M1.4 follow-up — native campaign summary labels
+
+- Corrected summary classification in the campaign-status or campaign column, before validating campaign identity. Preserve `summary_label` separately; summaries may have no campaign, details still require one. Conflicting structural summary labels fail explicitly; unrelated text never classifies a row as a total.
+- Updated the synthetic public example without private content. Seven regression cases added (48 parser tests, 99 total native unit tests); Ruff lint/format and strict mypy passed.
+- Read-only smoke against the owner's aggregate CSV passed: one detail, two separate summaries, matching cost. Daily reports remain explicitly unsupported; batch JSON assembly is not implemented by this correction.
+- Full Docker/PostgreSQL suite: 145 passed. Public synthetic example passed (two details, one separate total, 50.00 EUR detail cost); Gitleaks source/test/example scans and `git diff --check` passed. Existing Starlette deprecation warning remains nonblocking.
+
+### M1.4 daily campaign parser
+
+- Added explicit `parse_campaign_daily` using the shared bounded campaign parser. The summary entry point still rejects daily input. Report type identifies the grain; each row retains optional `day`, raw cells and physical line provenance.
+- Require ISO dates within the inclusive report period for details. Totals may be dated or undated; any supplied date must be valid and in range. Missing days are not invented as zeroes. Duplicate campaign/day details remain intact with `duplicate_daily_rows`; no automatic merge/deduplication or summation.
+- Incomplete coverage and unequal totals do not by themselves reject the report. Existing validation/limits and exact decimal metrics remain. No API, database, Worker or generic CSV changes; no runtime lifecycle events.
+- Added 12 regression cases (60 parser tests / 111 native unit tests passed), a fully synthetic daily example and manual terminal instructions. Ruff lint/format and strict mypy passed.
+- Full Docker/PostgreSQL suite: 157 passed; Gitleaks source/test/example scans and `git diff --check` passed. Existing Starlette deprecation warning remains nonblocking.
+- Private read-only smoke passed on daily files (4)/(6) plus aggregate (3). All 30 overlapping days matched the four common metrics; old daily costs matched the aggregate. New daily file parsed both campaigns, with 102 details and 262 separate totals. Public daily example passed (four details, three totals, 28.00 EUR detail cost). No private data copied into fixtures.
+- Next recommended slice: keyword report parsing with the same provenance and explicit coverage semantics, followed by search terms; agree batch contracts before persistence/API.
+
+### M1.4 search keyword parser
+
+- Added `parse_search_keywords` for the explicit Ukrainian search-keyword report. Shared typed contracts are now `GoogleAdsRow`/`GoogleAdsReport`; fixed profiles share existing bounded parsing, numeric validation and provenance, with no new dependencies or API/storage changes.
+- Keep campaign, ad group, full keyword text, source keyword status and normalized `exact`/`phrase`/`broad` match type. Do not infer match type from quotes/brackets. Unknown types fail explicitly. Keyword/status/campaign summary markers are separated from details and have no keyword identity.
+- Preserve repeated campaign/group/keyword/match tuples with `duplicate_keyword_rows`; preserve unequal totals/partial coverage without invented allocation or automatic rejection. No cross-report joins, aggregation or deduplication.
+- Owner clarified account currency is hryvnia (`UAH`). All synthetic Google Ads examples/tests now use UAH; currency remains source-driven, with no conversion or invented default. Earlier EUR verification notes describe previous synthetic versions only.
+- Added 14 regression cases (74 parser tests / 125 native unit tests passed), a synthetic keyword CSV and manual command. Ruff lint/format and strict mypy passed.
+- Full Docker/PostgreSQL suite: 171 passed; Gitleaks source/test/example scans and `git diff --check` passed. Existing Starlette deprecation warning remains nonblocking.
+- Private read-only keyword smoke passed: 215 details, nine separate totals, UAH; impressions/clicks/cost/conversions matched the account summary. Public summary/daily/keyword examples passed with unchanged amounts and UAH. No private data enters fixtures.
+- Next recommended slice: search-term report parsing with visible detail/other-term totals preserved separately, then a normalized JSON batch contract. Batch persistence/API and AI remain unimplemented.
+
+### M1.4 search-term parser
+
+- Added `parse_search_terms` for the explicit Ukrainian title/headers. Preserve verbatim query and optional linked keyword, campaign/group, original match label, normalized match type, close-variant flag and added/excluded source status, plus existing metrics/provenance/limits.
+- Query/campaign summary labels remain separate totals, including visible terms, other terms and account. No summing overlapping totals, allocation of undisclosed activity or automatic rejection solely for coverage differences. Missing keyword links warn without inventing identity.
+- Summary-only search-term exports are valid with empty detail coverage; no query is invented. A completely empty report still fails.
+- Exact/phrase close variants are distinct from base matches. Repeated campaign/group/query/keyword/match-label keys remain with `duplicate_search_term_rows`; no silent removal or aggregation.
+- Added 16 regression cases: 90 parser tests / 141 native unit tests passed, with Ruff lint/format and strict mypy. Added an independent synthetic UAH CSV and terminal manual instructions. No API, database, Worker, generic CSV changes or runtime lifecycle events.
+- Full Docker/PostgreSQL suite: 187 passed; Gitleaks source/test/example scans and `git diff --check` passed. Existing Starlette deprecation warning remains nonblocking.
+- Private read-only smoke passed: 152 visible queries, five summaries, UAH. Four detail metrics agree with the visible summary; visible plus other metrics agree with account totals. This observed agreement is not required for every export. No private contents copied into fixtures.
+- Public synthetic smoke passed: two queries, three separate summaries; 150.00 UAH visible, 250.00 other, 400.00 account. Next slice: agree/implement an in-memory normalized JSON batch contract with explicit account assertion, period compatibility, source provenance and duplicate handling before persistence/API.
+
+### M1.4 local JSON batch assembly
+
+- Added typed batch specification/CSV inputs and application-owned `build_google_ads_batch` -> UTF-8 JSON bytes, schema version 1. Caller supplies batch UUID, requested period and local owner-asserted account reference; no fabricated verified Google ID.
+- Keep all four profiles in separate report arrays, with exact source periods, SHA-256 source/line-based row IDs, normalized rows, raw cells/headers and parser warnings. Preserve Decimal as strings, dates as ISO, counts as integers and missing values as null. Currency remains source-driven; mixed observed currencies fail, missing row currency remains explicit.
+- Mismatched periods are warned, never silently filtered/prorated. Overlapping periods and multiple distinct same-profile exports warn without aggregation. Reject byte-identical sources, including renamed copies. Preserve incomplete/summary-only data; no invented allocation or duplicate-row resolution.
+- Bounds: 1–8 sources, 40 MiB combined input, existing per-file limits, 20 MiB JSON. Local CLI creates a new output exclusively. No API, database, Worker, model calls or lifecycle events. Full raw package is explicitly not AI-ready; bounded calculated evidence is later work.
+- Added 17 batch tests (158 native unit tests passed), synthetic JSON, manual command and ADR-018. Ruff lint/format, strict mypy for backend and CLI passed. CI now checks the new script; remote CI has not yet been verified for this slice.
+- Full Docker/PostgreSQL suite: 204 passed. Gitleaks scans of backend source/tests, examples and scripts, plus `git diff --check`, passed. Existing Starlette deprecation warning remains nonblocking.
+- Synthetic four-profile build, CLI creation/overwrite refusal and private five-source in-memory smoke passed. Private JSON was not saved; no private content copied into public artifacts. Requested-period and repeated-daily-profile warnings were preserved, observed currency UAH.
+- Next recommended slice: bounded deterministic evidence/coverage calculations from the package, with explicit comparable periods/source selection before interpreting overlapping reports. Durable API upload/storage and M1.5 AI remain unimplemented.
