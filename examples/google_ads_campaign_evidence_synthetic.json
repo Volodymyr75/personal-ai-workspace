@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "evidence_type": "campaign_summary",
+  "input_batch_id": "00000000-0000-0000-0000-000000000001",
+  "input_batch_sha256": "de026cf3b096020d7f4abbd368ccf5cb933253b916f3f9e0b2f2ba6c37e48ba8",
+  "account": {
+    "local_ref": "synthetic-account",
+    "scope": "owner_asserted"
+  },
+  "source": {
+    "source_id": "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c",
+    "report_type": "campaign_daily",
+    "period_start": "2026-11-01",
+    "period_end": "2026-11-02",
+    "warnings": [
+      "account_scope_unverified",
+      "coverage_unverified"
+    ]
+  },
+  "period": {
+    "start": "2026-11-01",
+    "end": "2026-11-07"
+  },
+  "requested_day_count": 7,
+  "currency": "UAH",
+  "observed_currencies": [
+    "UAH"
+  ],
+  "excluded_source_rows": 0,
+  "campaigns_without_rows_in_period": 0,
+  "policies": {
+    "metrics_scope": "observed_detail_rows_only",
+    "ratios": "sums_of_paired_nonmissing_rows",
+    "ratio_decimal_places": 6,
+    "ratio_rounding": "half_even",
+    "missing_days": "not_zero_filled",
+    "summary_rows": "excluded",
+    "source_text": "untrusted_data",
+    "provider_submission": "not_authorized_by_evidence_creation"
+  },
+  "campaigns": [
+    {
+      "campaign": "Synthetic Alpha",
+      "row_ids": [
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:4-4",
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:5-5"
+      ],
+      "impressions": {
+        "observed_sum": 300,
+        "present_rows": 2,
+        "missing_row_ids": []
+      },
+      "clicks": {
+        "observed_sum": 5,
+        "present_rows": 2,
+        "missing_row_ids": []
+      },
+      "cost": {
+        "observed_sum": "10.00",
+        "present_rows": 2,
+        "missing_row_ids": []
+      },
+      "ctr_percent": {
+        "value": "1.666667",
+        "numerator_sum": 5,
+        "denominator_sum": 300,
+        "paired_rows": 2,
+        "excluded_row_ids": [],
+        "unavailable_reason": null
+      },
+      "cpc": {
+        "value": "2.000000",
+        "numerator_sum": "10.00",
+        "denominator_sum": 5,
+        "paired_rows": 2,
+        "excluded_row_ids": [],
+        "unavailable_reason": null
+      },
+      "observed_day_count": 2,
+      "missing_days": [
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-06",
+        "2026-11-07"
+      ]
+    },
+    {
+      "campaign": "Synthetic Beta",
+      "row_ids": [
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:6-6",
+        "sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c:7-7"
+      ],
+      "impressions": {
+        "observed_sum": 700,
+        "present_rows": 2,
+        "missing_row_ids": []
+      },
+      "clicks": {
+        "observed_sum": 9,
+        "present_rows": 2,
+        "missing_row_ids": []
+      },
+      "cost": {
+        "observed_sum": "18.00",
+        "present_rows": 2,
+        "missing_row_ids": []
+      },
+      "ctr_percent": {
+        "value": "1.285714",
+        "numerator_sum": 9,
+        "denominator_sum": 700,
+        "paired_rows": 2,
+        "excluded_row_ids": [],
+        "unavailable_reason": null
+      },
+      "cpc": {
+        "value": "2.000000",
+        "numerator_sum": "18.00",
+        "denominator_sum": 9,
+        "paired_rows": 2,
+        "excluded_row_ids": [],
+        "unavailable_reason": null
+      },
+      "observed_day_count": 2,
+      "missing_days": [
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-06",
+        "2026-11-07"
+      ]
+    }
+  ],
+  "warnings": [
+    "account_scope_unverified",
+    "campaign_identity_unverified",
+    "campaign_inventory_unverified",
+    "export_snapshot_time_not_collected",
+    "missing_campaign_days",
+    "requested_period_extends_source"
+  ]
+}

@@ -1,0 +1,453 @@
+{
+  "schema_version": 1,
+  "evidence_type": "search_detail",
+  "input_batch_id": "00000000-0000-0000-0000-000000000001",
+  "input_batch_sha256": "de026cf3b096020d7f4abbd368ccf5cb933253b916f3f9e0b2f2ba6c37e48ba8",
+  "account": {
+    "local_ref": "synthetic-account",
+    "scope": "owner_asserted"
+  },
+  "period": {
+    "start": "2026-11-01",
+    "end": "2026-11-07"
+  },
+  "currency": "UAH",
+  "observed_currencies": [
+    "UAH"
+  ],
+  "policies": {
+    "cross_report_metrics": "not_additive",
+    "keyword_query_joins": "not_performed",
+    "ratios": "paired_nonmissing_rows",
+    "ratio_decimal_places": 6,
+    "ratio_rounding": "half_even",
+    "unreported_activity": "not_allocated",
+    "missing_values": "null_not_zero",
+    "daily_coverage": "not_collected",
+    "source_text": "untrusted_data",
+    "provider_submission": "not_authorized_by_evidence_creation"
+  },
+  "reports": {
+    "search_keywords": {
+      "source": {
+        "source_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd",
+        "report_type": "search_keywords",
+        "period_start": "2026-11-01",
+        "period_end": "2026-11-07",
+        "warnings": [
+          "account_scope_unverified",
+          "coverage_unverified"
+        ]
+      },
+      "rows": [
+        {
+          "row_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+          "campaign": "Synthetic Alpha",
+          "ad_group": "Synthetic Group",
+          "keyword": "[synthetic exact]",
+          "search_term": null,
+          "match_type": "exact",
+          "match_type_text": null,
+          "close_variant": null,
+          "keyword_status": "Увімкнено",
+          "added_or_excluded": null,
+          "currency": "UAH",
+          "impressions": 100,
+          "clicks": 5,
+          "cost": "50.00",
+          "ctr_percent": {
+            "value": "5.000000",
+            "numerator_sum": 5,
+            "denominator_sum": 100,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          },
+          "cpc": {
+            "value": "10.000000",
+            "numerator_sum": "50.00",
+            "denominator_sum": 5,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          }
+        },
+        {
+          "row_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5",
+          "campaign": "Synthetic Beta",
+          "ad_group": "Synthetic Group",
+          "keyword": "\"synthetic phrase\"",
+          "search_term": null,
+          "match_type": "phrase",
+          "match_type_text": null,
+          "close_variant": null,
+          "keyword_status": "Увімкнено",
+          "added_or_excluded": null,
+          "currency": "UAH",
+          "impressions": 200,
+          "clicks": 10,
+          "cost": "100.00",
+          "ctr_percent": {
+            "value": "5.000000",
+            "numerator_sum": 10,
+            "denominator_sum": 200,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          },
+          "cpc": {
+            "value": "10.000000",
+            "numerator_sum": "100.00",
+            "denominator_sum": 10,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          }
+        }
+      ],
+      "detail_row_ids": [
+        "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+        "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5"
+      ],
+      "reported_totals": [
+        {
+          "summary_label": "Усього: Обліковий запис",
+          "row_id": "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6",
+          "currency": "UAH",
+          "impressions": 300,
+          "clicks": 15,
+          "cost": "150.00"
+        }
+      ],
+      "coverage": {
+        "impressions": {
+          "observed_detail": {
+            "observed_sum": 300,
+            "present_rows": 2,
+            "missing_row_ids": []
+          },
+          "account_minus_visible_detail": {
+            "value": 0,
+            "row_ids": [
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_share_percent": {
+            "value": "100.000000",
+            "row_ids": [
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6"
+            ],
+            "unavailable_reason": null
+          }
+        },
+        "clicks": {
+          "observed_detail": {
+            "observed_sum": 15,
+            "present_rows": 2,
+            "missing_row_ids": []
+          },
+          "account_minus_visible_detail": {
+            "value": 0,
+            "row_ids": [
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_share_percent": {
+            "value": "100.000000",
+            "row_ids": [
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6"
+            ],
+            "unavailable_reason": null
+          }
+        },
+        "cost": {
+          "observed_detail": {
+            "observed_sum": "150.00",
+            "present_rows": 2,
+            "missing_row_ids": []
+          },
+          "account_minus_visible_detail": {
+            "value": "0.00",
+            "row_ids": [
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_share_percent": {
+            "value": "100.000000",
+            "row_ids": [
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:4-4",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:5-5",
+              "sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd:6-6"
+            ],
+            "unavailable_reason": null
+          }
+        }
+      },
+      "warnings": [
+        "export_snapshot_time_not_collected",
+        "inventory_unverified"
+      ]
+    },
+    "search_terms": {
+      "source": {
+        "source_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028",
+        "report_type": "search_terms",
+        "period_start": "2026-11-01",
+        "period_end": "2026-11-07",
+        "warnings": [
+          "account_scope_unverified",
+          "coverage_unverified"
+        ]
+      },
+      "rows": [
+        {
+          "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+          "campaign": "Synthetic Alpha",
+          "ad_group": "Synthetic Group",
+          "keyword": "[synthetic keyword]",
+          "search_term": "synthetic query one",
+          "match_type": "exact",
+          "match_type_text": "Точна відповідність (наближений варіант)",
+          "close_variant": true,
+          "keyword_status": null,
+          "added_or_excluded": "Немає",
+          "currency": "UAH",
+          "impressions": 100,
+          "clicks": 5,
+          "cost": "50.00",
+          "ctr_percent": {
+            "value": "5.000000",
+            "numerator_sum": 5,
+            "denominator_sum": 100,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          },
+          "cpc": {
+            "value": "10.000000",
+            "numerator_sum": "50.00",
+            "denominator_sum": 5,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          }
+        },
+        {
+          "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+          "campaign": "Synthetic Beta",
+          "ad_group": "Synthetic Group",
+          "keyword": "\"synthetic phrase\"",
+          "search_term": "synthetic query two",
+          "match_type": "phrase",
+          "match_type_text": "Фразова відповідність",
+          "close_variant": false,
+          "keyword_status": null,
+          "added_or_excluded": "Додано",
+          "currency": "UAH",
+          "impressions": 200,
+          "clicks": 10,
+          "cost": "100.00",
+          "ctr_percent": {
+            "value": "5.000000",
+            "numerator_sum": 10,
+            "denominator_sum": 200,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          },
+          "cpc": {
+            "value": "10.000000",
+            "numerator_sum": "100.00",
+            "denominator_sum": 10,
+            "paired_rows": 1,
+            "excluded_row_ids": [],
+            "unavailable_reason": null
+          }
+        }
+      ],
+      "detail_row_ids": [
+        "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+        "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5"
+      ],
+      "reported_totals": [
+        {
+          "summary_label": "Усього: Пошукові терміни",
+          "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6",
+          "currency": "UAH",
+          "impressions": 300,
+          "clicks": 15,
+          "cost": "150.00"
+        },
+        {
+          "summary_label": "Усього: Інші пошукові терміни",
+          "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:7-7",
+          "currency": "UAH",
+          "impressions": 700,
+          "clicks": 25,
+          "cost": "250.00"
+        },
+        {
+          "summary_label": "Усього: Обліковий запис",
+          "row_id": "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+          "currency": "UAH",
+          "impressions": 1000,
+          "clicks": 40,
+          "cost": "400.00"
+        }
+      ],
+      "coverage": {
+        "impressions": {
+          "observed_detail": {
+            "observed_sum": 300,
+            "present_rows": 2,
+            "missing_row_ids": []
+          },
+          "account_minus_visible_detail": {
+            "value": 700,
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_share_percent": {
+            "value": "30.000000",
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_minus_reported_visible": {
+            "value": 0,
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6"
+            ],
+            "unavailable_reason": null
+          },
+          "reported_account_minus_visible_minus_other": {
+            "value": 0,
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:7-7"
+            ],
+            "unavailable_reason": null
+          }
+        },
+        "clicks": {
+          "observed_detail": {
+            "observed_sum": 15,
+            "present_rows": 2,
+            "missing_row_ids": []
+          },
+          "account_minus_visible_detail": {
+            "value": 25,
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_share_percent": {
+            "value": "37.500000",
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_minus_reported_visible": {
+            "value": 0,
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6"
+            ],
+            "unavailable_reason": null
+          },
+          "reported_account_minus_visible_minus_other": {
+            "value": 0,
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:7-7"
+            ],
+            "unavailable_reason": null
+          }
+        },
+        "cost": {
+          "observed_detail": {
+            "observed_sum": "150.00",
+            "present_rows": 2,
+            "missing_row_ids": []
+          },
+          "account_minus_visible_detail": {
+            "value": "250.00",
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_share_percent": {
+            "value": "37.500000",
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8"
+            ],
+            "unavailable_reason": null
+          },
+          "visible_detail_minus_reported_visible": {
+            "value": "0.00",
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:4-4",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:5-5",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6"
+            ],
+            "unavailable_reason": null
+          },
+          "reported_account_minus_visible_minus_other": {
+            "value": "0.00",
+            "row_ids": [
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:8-8",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:6-6",
+              "sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028:7-7"
+            ],
+            "unavailable_reason": null
+          }
+        }
+      },
+      "warnings": [
+        "export_snapshot_time_not_collected",
+        "inventory_unverified"
+      ]
+    }
+  },
+  "warnings": [
+    "account_scope_unverified",
+    "source_identity_unverified",
+    "cross_report_totals_not_additive"
+  ]
+}

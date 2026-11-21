@@ -1,6 +1,6 @@
 # PAW delivery plan
 
-Updated: 2026-11-20
+Updated: 2026-11-21
 
 ## Current state
 
@@ -42,7 +42,7 @@ Implementation sequence completed:
 
 | Milestone | Scope | Status |
 | --- | --- | --- |
-| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | M1.1–M1.3 implemented; AI interpretation not started |
+| M1 | Durable runs, validated CSV uploads, deterministic reports/charts, then model interpretation | M1.1–M1.3 implemented; local M1.5 trial completed, full agent/API integration pending |
 | M2 | Responsive English web workflow, history, results and error states | Not started |
 | M3 | Authenticated, idempotent n8n integration and reproducible core MVP | Not started |
 | M4 | Owner-only online deployment, targeted release checks, storage and backup/restore | Not started |
@@ -147,7 +147,7 @@ The owner confirmed M1.2 manually before authorizing this slice.
 
 ## Planned task — M1.4 Google Ads export batches
 
-Status: four standalone parsers and local JSON batch assembly implemented, authorized 2026-11-20. Durable API batch import remains planned.
+Status: four parsers, local JSON batches and campaign/keyword/query evidence implemented. Durable API batch import/run integration remains planned; M1.4 is not complete.
 
 - One Google Ads account, multiple campaigns, several related CSVs per reporting period.
 - Intended recurring workflow: obtain reports (for example weekly), normalize/validate, calculate evidence, pass relevant data to AI, retain conclusions and recommendations.
@@ -217,7 +217,43 @@ Next slice: agree batch identity/account assertion, period/currency compatibilit
 - Keep all four profiles in separate report arrays, with exact source periods, SHA-256 source/line-based row IDs, normalized rows, raw cells/headers and parser warnings. Preserve Decimal as strings, dates as ISO, counts as integers and missing values as null. Currency remains source-driven; mixed observed currencies fail, missing row currency remains explicit.
 - Mismatched periods are warned, never silently filtered/prorated. Overlapping periods and multiple distinct same-profile exports warn without aggregation. Reject byte-identical sources, including renamed copies. Preserve incomplete/summary-only data; no invented allocation or duplicate-row resolution.
 - Bounds: 1–8 sources, 40 MiB combined input, existing per-file limits, 20 MiB JSON. Local CLI creates a new output exclusively. No API, database, Worker, model calls or lifecycle events. Full raw package is explicitly not AI-ready; bounded calculated evidence is later work.
-- Added 17 batch tests (158 native unit tests passed), synthetic JSON, manual command and ADR-018. Ruff lint/format, strict mypy for backend and CLI passed. CI now checks the new script; remote CI has not yet been verified for this slice.
+- Added 17 batch tests (158 native unit tests passed), synthetic JSON, manual command and ADR-018. Ruff lint/format, strict mypy for backend and CLI passed. CI now checks the new script; [exact-commit CI](https://github.com/Volodymyr75/personal-ai-workspace/actions/runs/44781393614) passed for `b1ea0f1` after push.
 - Full Docker/PostgreSQL suite: 204 passed. Gitleaks scans of backend source/tests, examples and scripts, plus `git diff --check`, passed. Existing Starlette deprecation warning remains nonblocking.
 - Synthetic four-profile build, CLI creation/overwrite refusal and private five-source in-memory smoke passed. Private JSON was not saved; no private content copied into public artifacts. Requested-period and repeated-daily-profile warnings were preserved, observed currency UAH.
 - Next recommended slice: bounded deterministic evidence/coverage calculations from the package, with explicit comparable periods/source selection before interpreting overlapping reports. Durable API upload/storage and M1.5 AI remain unimplemented.
+
+### M1.4 campaign evidence — 2026-11-21
+
+- Owner approved campaign-only evidence from one explicitly selected JSON batch source. Added typed contracts, bounded input validation, deterministic campaign tool and local CLI. No API, DB, Worker, provider calls, dependency changes or runtime lifecycle events. ADR-019 records semantics.
+- Daily evidence filters by explicit inclusive dates and discloses excluded rows, campaigns with no selected rows and missing requested dates. Summary evidence requires exact export-period equality; no prorating. Repeated campaign/day or aggregate campaign keys fail before summation.
+- Per campaign: observed impressions/clicks/cost sums with present-row counts and missing-row refs, paired CTR/CPC with numerator/denominator sums, paired counts/excluded refs, and daily coverage (null/not collected for aggregate). No source summary rows or unselected exports contribute. Empty pairs/zero denominators return null with reasons.
+- Exact money sums use local Decimal precision 64 for bounded inputs (<=1e15 and <=18 decimal places); ratios alone round half-even to six places. Accept the uppercase scientific notation emitted for tiny Decimal batch values. Currency is derived from selected rows, never inferred/converted; mixed known currencies fail.
+- Retain chosen source/physical row refs and exact input batch hash, with no raw cells, full headers or notes. Validate consumed fields/references, not original CSV authenticity or ignored reports. Keep source warnings separate from evidence warnings; current/historical snapshot completeness is not inferred.
+- Limits: 20 MiB input, 100,000 source rows, 10,000 selected rows, 100 campaigns, 366 days, 2 MiB output; fail rather than truncate. CLI refuses existing output. Added 40 focused cases; 198 native unit tests, Ruff lint/format and strict mypy backend/both CLIs passed. CI script checks extended but not run remotely for current changes.
+- Final full Docker/PostgreSQL suite: 244 passed. Gitleaks source/test/example/script scans and `git diff --check` passed. Existing Starlette warning remains nonblocking.
+- Public synthetic evidence/CLI smoke passed: two UAH campaigns, expected sums/rates and five disclosed missing dates each. Private read-only/in-memory smoke independently matched CSV counts/cost/CPC for two campaigns over November 1–19, with 64 out-of-period rows excluded; no private output saved.
+- Next recommended slice: keyword/search-term evidence and coverage with explicit compatible-period/source selection. Conversion-led evaluation, inter-period comparisons, durable upload and M1.5 provider/AI work remain unimplemented.
+
+### M1.4 keyword/query evidence and coverage — 2026-11-21
+
+- Owner authorized the next evidence slice. Added typed search selection/observations, deterministic per-row metrics and within-report coverage, `build_search_evidence`, a local CLI, synthetic JSON, tests and ADR-020. Shared JSON/metric helpers preserve previous campaign output byte-for-byte. No dependency/API/DB/Worker/provider or lifecycle changes.
+- Explicitly select at most one source of each search profile (at least one); each must match the whole requested period. Missing profile is null/not collected. Retain every detail and summary with references, source identities, statuses, keyword/query/match linkage. No inferred joins, cross-report sums or automatic top-row truncation.
+- Coverage: observed impressions/clicks/cost, account-minus-detail and detail/account share; queries also compare detail to reported-visible totals and reconcile reported account minus visible minus other. Every computed value references contributing detail/summary rows. Reported other-term activity is never automatically allocated.
+- Incomplete values, absent/ambiguous summaries, no visible rows or zero denominators produce null with reasons and preserve unaffected data. Missing currency suppresses money comparisons; mixed known currencies fail. Signed discrepancies and shares >100 warn without claiming a cause. Summary-only queries remain valid. Duplicate detail identities fail before arithmetic; different keyword links remain distinct.
+- Limits: 1,000 combined selected detail/summary rows, 100,000 rows/source, 20 MiB input, 366 days, 2 MiB output. Existing exact Decimal sums and six-place half-even ratios apply. Source labels remain untrusted; originals/raw cells are not submitted anywhere.
+- Added 30 tests; 228 native unit tests, Ruff lint/format and strict mypy backend/three CLIs passed. CI script checks extended locally, not run remotely for uncommitted evidence changes. Synthetic two-profile evidence/CLI creation+overwrite refusal and previous campaign artifact equality passed.
+- Full Docker/PostgreSQL suite: 274 passed. Gitleaks source/test/example/script scans and `git diff --check` passed. Existing Starlette deprecation warning remains nonblocking.
+- Private in-memory smoke independently matched counts/cost for 215 keyword rows and 152 queries and checked visible/other/account reconciliation; no private output saved or copied into public fixtures. Public example: `examples/google_ads_search_evidence_synthetic.json`.
+- Next: agree a coherent integration boundary (durable batch API/run work within M1.4 or explicitly scoped offline M1.5 interpretation). Do not mark all M1.4 complete or start AI without provider/data-sharing/budget and business-context discussion. Conversion-led evaluation and automatic collection remain unimplemented.
+
+### M1.5 owner-authorized one-off local interpretation — 2026-11-21
+
+- Owner chose to test one-off CSV analysis before historical data storage/automation. Budget: no paid API; local advertising data may be processed by the selected open-source model. Final choice: Ministral 3 3B through Ollama Docker, Apache 2.0. ADR-021 scopes this as an offline fixed interpretation pass, not completion/replacement of the full registered agent/API/Worker workflow.
+- Added typed provider/request/usage contracts, bounded cited-fact preparation, one-call local adapter, report validation/rendering and CLI. Retain prompt/payload hashes, local fact-to-row provenance, raw response and available usage/runtime metadata. Output directories are exclusive/private under ignored artifacts by default; no model retries or external providers.
+- Model input: all campaigns up to twenty, fifteen highest-observed-cost keyword and query rows each, full-report coverage facts, explicit selection/omission and unknown business context. No raw CSV/cells/notes or filesystem paths are sent. Grounded fact IDs are required; structure/reference checks do not verify model numeric/semantic truth.
+- Runtime is separately optional, image and model digest pinned, loopback port only, cloud disabled, six CPUs / 6 GiB, immediate model unload. Observed Docker runtime Ollama 0.40.17 and Ministral digest `f04aa1c738f64e13c625b82ae92504fc0260fa6723b509ed1ece0fa188179b1d`. No DB/schema/API/Worker/dependency changes or runtime registry events.
+- Two local trials used identical fact payloads. First digit-free prose constraint distorted output; answer was preserved and validation rejected it. Prompt v2 removed that restriction and strengthened scope instructions. Second: 6,114 input / 1,377 output tokens, ~239 seconds, normal stop, schema/reference checks passed. Neither used a paid API.
+- **Quality finding: insufficient for advertising-account decisions on this dataset.** Manual comparison with a baseline written before reading the model response found incorrect metrics/attributions, confusion between phrase/broad match and between global query coverage/campaign statistics, plus unsupported optimization/exclusion suggestions. Preserve both outputs; do not treat schema success as an expert-audit success or generalize this one trial into a model ranking.
+- Private report and quality review are under ignored `artifacts/one-off/ministral-3b-real-2026-11-21-02/`; baseline and first rejected response under `...-01/`. No private outputs/fixtures committed. Public documentation includes reproducible synthetic dry-run/live commands and observed limitations.
+- Added 21 offline/mock cases: 249 native unit tests, 295 Docker/PostgreSQL tests, Ruff lint/format, strict mypy backend/four CLIs, Gitleaks and `git diff --check` passed. Synthetic prepare-only/no-overwrite smoke passed. Existing Starlette warning is nonblocking. Remote CI not run for current uncommitted changes.
+- Next: discuss this quality result before another model experiment. A larger Mistral/native Metal comparison and confirmed services/geography are possible explicit next scopes. No automated account actions, cloud API, historical merge or scheduled collection is authorized/implemented by this slice; full M1 remains incomplete.

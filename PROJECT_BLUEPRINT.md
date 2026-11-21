@@ -642,6 +642,9 @@ ADR-001–011 below are design summaries, not claims that separate ADR files or 
 - **[ADR-012](docs/adr/ADR-012-delivery-and-history.md)**: Single-owner online direction, deferred visualization, factual node/link history from M0, and later capture/language workflows.
 - **[ADR-013](docs/adr/ADR-013-operations-and-visualization-boundaries.md)**: Separate lifecycle, execution and operational data; future correlated usage and renderer-neutral views without expanding M0.
 - **[ADR-018](docs/adr/ADR-018-google-ads-json-batches.md)**: M1.4 local Google Ads JSON batches preserve report grains, exact decimals, provenance and coverage limitations before later evidence/AI processing.
+- **[ADR-019](docs/adr/ADR-019-campaign-evidence.md)**: M1.4 campaign evidence selects one source, computes bounded paired metrics and preserves row provenance and missing-date limitations without AI calls.
+- **[ADR-020](docs/adr/ADR-020-search-evidence-and-coverage.md)**: M1.4 keyword/query evidence preserves separate report grains and computes traceable within-report coverage without inventing undisclosed attribution.
+- **[ADR-021](docs/adr/ADR-021-local-one-off-interpretation.md)**: Owner-authorized one-off local Ministral interpretation experiment precedes history/automation integration; typed provider and cited reports do not replace full agent/API/Worker delivery.
 
 ## 18. Source and licensing references
 

@@ -185,7 +185,198 @@ CLI code checks from `backend`: `.venv/bin/ruff check . ../scripts/build_google_
 `.venv/bin/ruff format --check . ../scripts/build_google_ads_batch.py`,
 `MYPYPATH=src .venv/bin/mypy ../scripts/build_google_ads_batch.py`.
 
+## M1.4 campaign evidence
+
+From the repository root, select the daily source explicitly from the synthetic batch:
+
+```sh
+backend/.venv/bin/python scripts/build_google_ads_evidence.py \
+  --input examples/google_ads_batch_synthetic.json \
+  --source-id sha256:e65649ef33b6c6952a36444c0e97d807a54c3263c1a5502af2aabbe9fd22c79c \
+  --period-start 2026-11-01 --period-end 2026-11-07 \
+  --output /tmp/paw-campaign-evidence.json
+```
+
+Use a new output path. An existing path fails with `output_exists` and is untouched.
+For another source, inspect its `source_id` in the batch's report arrays and pass it
+explicitly; the command never guesses a source or combines multiple campaign exports.
+The expected output is also in `examples/google_ads_campaign_evidence_synthetic.json`.
+
+Expected synthetic evidence (UAH): Alpha has 300 impressions, 5 clicks, cost 10.00,
+CTR 1.666667% and CPC 2.000000; Beta has 700 impressions, 9 clicks, cost 18.00,
+CTR 1.285714% and CPC 2.000000. Each has two observed days and five missing dates
+(November 3–7); there is no claim those dates had zero activity. Output is 3,831
+bytes versus the 27,931-byte batch, with source/row references and no raw cells.
+
+Sums are named `observed_sum`: they cover present values in observed selected rows,
+not guaranteed complete account/period totals. Inspect `present_rows`, `missing_row_ids`
+and campaign `missing_days`. CTR/CPC use paired nonmissing rows and disclose their
+paired sums, counts and `excluded_row_ids`. Referenced contributing rows are the
+campaign's `row_ids` minus the metric's missing/excluded IDs. Empty pairs and zero
+denominators produce null with `no_paired_rows` or `zero_denominator`.
+Exact money strings are not rounded; ratios alone round half-even to six places.
+
+Daily sources can be filtered explicitly, including a requested interval beyond the
+export (missing dates are disclosed). Aggregate sources require the exact export
+period or fail with `summary_period_mismatch`; daily coverage is not collected there.
+Duplicate campaign/day rows in the selected period, or repeated campaigns in an
+aggregate, fail with `duplicate_campaign_rows`. No silent deduplication/merging.
+Campaigns with no in-period rows are counted as excluded, not invented as zero rows.
+No in-period rows fails with `no_evidence_rows`. Source-level warnings stay under
+`source.warnings`; top-level warnings describe the selected evidence. Export snapshot
+time and campaign inventory remain unverified even when every date is present.
+
+Only the selected report's consumed fields are validated. The batch hash identifies
+the exact input document, and row IDs must agree with source/line references, but this
+does not authenticate originals. Keep original CSVs/batch separately. Unknown selected
+currency remains null, with observed codes listed; no conversion. Consumed metrics
+must have <=1e15 magnitude and money <=18 effective decimal places. Missing numeric
+keys, malformed/nonfinite values and invalid provenance fail with `invalid_evidence_input`.
+
+Bounds: 20 MiB input, 100,000 source detail rows, 10,000 in-period observations,
+100 campaigns, 366 days, 2 MiB output. Oversize fails, never truncates evidence.
+Application entry point: `build_campaign_evidence(data, CampaignEvidenceSpec(...))`.
+The CLI does not call API/Worker/model providers, modify DB state or submit data.
+Keyword/query evidence, conversions analysis and AI interpretation are later slices.
+See ADR-019 for arithmetic, precision and provenance decisions.
+
+From `backend`, add `../scripts/build_google_ads_evidence.py` to Ruff checks;
+`MYPYPATH=src .venv/bin/mypy ../scripts/build_google_ads_evidence.py` checks the CLI.
+
+## M1.4 keyword/search-term evidence
+
+From the repository root, select both synthetic sources explicitly:
+
+```sh
+backend/.venv/bin/python scripts/build_google_ads_search_evidence.py \
+  --input examples/google_ads_batch_synthetic.json \
+  --keyword-source-id sha256:a567c294d41c6a1c28838889dd9b183913e71a5cc2ca674a61030312437a2bdd \
+  --search-term-source-id sha256:bc3336222712db92832fc70ca1643eaa93d25a0ac13b356d2c8c215d4693f028 \
+  --period-start 2026-11-01 --period-end 2026-11-07 \
+  --output /tmp/paw-search-evidence.json
+```
+
+Use a new path; existing output fails with `output_exists` without changing it.
+The expected synthetic document is `examples/google_ads_search_evidence_synthetic.json`.
+Either source flag can be omitted; the other is then required. The unselected report
+is null/not collected. All selected sources must exactly match the requested period
+or fail with `search_evidence_period_mismatch`; aggregate reports are never prorated.
+
+Expected: two keyword rows and two query rows, UAH, in separate report sections.
+The synthetic query details have 15 clicks / 150.00 cost; the account summary has
+40 clicks / 400.00 cost. Both visible shares are 37.500000%; account minus visible
+is 25 clicks / 250.00 cost. Reported visible+other reconciles to account with zero
+delta. The independently synthetic keyword report has its own 15-click account
+summary: do not add it to the query account or infer that the reports reconcile.
+
+Each detail retains full keyword/query text, campaign/group, normalized match type,
+close-variant flag and relevant source status. CTR/CPC use paired nonmissing values.
+Repeated detail identities fail with `duplicate_search_evidence_rows`; different
+query-to-keyword links remain separate. No automatic keyword/query join is performed.
+
+For each report, `coverage` exposes observed detail sums/missing refs, account minus
+visible detail and detail/account percentage for impressions/clicks/cost. Query reports
+also show detail minus reported-visible summary and account minus reported-visible
+minus reported-other. `reported_totals` retains every summary separately. Derived
+values carry contributing row IDs, including their supporting summary rows.
+These are within-report facts; matching source periods do not verify snapshot/filter
+comparability or authorize cross-report totals.
+
+Null comparisons have explicit reasons: `missing_summary`, `ambiguous_summary`,
+`missing_values`, `no_visible_rows`, `zero_denominator` or `currency_unverified`.
+Unavailable comparisons do not discard report rows. Summary-only query exports are
+valid; absent detail is not an observed zero sum. Signed discrepancies and shares
+above 100 remain visible with warnings; no cause/allocation is invented. Reported
+other-term activity is not distributed among queries, keywords or campaigns.
+
+Bounds: existing 20 MiB input, 100,000 rows/source, 1,000 combined selected detail/
+summary rows, 366 days and 2 MiB output; fail instead of silently selecting top rows.
+Exact Decimal sums/strings, six-place half-even ratios, provenance and source-text
+handling follow ADR-019/020. Unknown currency suppresses monetary comparisons; known
+mixed currencies fail. Raw cells/notes/headers are omitted; text labels remain data.
+`build_search_evidence(data, SearchEvidenceSpec(...))` is the application entry point.
+No API/DB/Worker/model calls occur, and evidence creation does not submit data.
+
+For native checks from `backend`, include `../scripts/build_google_ads_search_evidence.py`
+in Ruff check/format and `MYPYPATH=src .venv/bin/mypy` commands. CI includes these checks.
+
+## One-off local AI experiment (Ministral 3 3B)
+
+This owner-authorized experiment uses a local open-weight model, no paid API or key.
+It does not implement DB history, API/Worker integration or scheduled collection.
+The optional Compose project is separate from the existing PAW services/volumes:
+
+```sh
+docker compose -f infrastructure/compose.local-ai.yaml up -d --wait
+docker compose -f infrastructure/compose.local-ai.yaml exec -T ollama ollama pull ministral-3:3b
+docker compose -f infrastructure/compose.local-ai.yaml exec -T ollama ollama list
+```
+
+The image is digest-pinned; the adapter also requires installed model digest
+`f04aa1c738f64e13c625b82ae92504fc0260fa6723b509ed1ece0fa188179b1d`.
+Cloud features are disabled; only `127.0.0.1:11434` is exposed. The container receives
+no advertising file mounts. Downloads need network access, generation is local.
+Current resource settings: six CPUs, 6 GiB memory; one loaded model/request at a time.
+On macOS Docker this is CPU inference without Metal. Model download is around 3 GB;
+that is not the full RAM requirement. Weights remain in their own Docker volume.
+
+Run a synthetic complete one-off analysis from the repository root:
+
+```sh
+backend/.venv/bin/python scripts/analyze_google_ads_once.py \
+  --account-ref synthetic-account \
+  --period-start 2026-11-01 --period-end 2026-11-07 \
+  --source campaign_daily=examples/google_ads_campaign_daily_synthetic.csv \
+  --source search_keywords=examples/google_ads_search_keywords_synthetic.csv \
+  --source search_terms=examples/google_ads_search_terms_synthetic.csv \
+  --model ministral-3:3b \
+  --output-dir artifacts/one-off/synthetic-trial
+```
+
+Use a new directory. Add `--prepare-only` to write exact prepared facts/provenance
+without invoking a model (the service need not be running). Optional `--service`
+(repeatable) and `--geography` supply owner-confirmed business context; absent context
+remains unknown. The fixed objective is traffic-quality review, not conversion/ROI
+optimization. A supplied campaign name does not prove which services are offered.
+
+Exactly one campaign CSV is required; select its type explicitly. Search profiles are
+optional and limited to one each. Daily campaign data filters to requested dates;
+aggregate periods must match. This is a self-contained package, not history merging.
+All campaigns (<=20) are represented. Search details are selected by highest observed
+cost, <=15 per profile, with counts of included/omitted rows. Coverage facts still use
+the full local reports; selection is disclosed to the model. Full-row model input is
+not enabled merely because local processing was authorized.
+
+Output files are local/private: `prepared.json`, `request.json`, `model-response.json`,
+`response-metadata.json`, `report.json` and readable `report.md`. On invalid output,
+`failure.json` records a safe code; any received model answer remains available for
+inspection. Default output is a fresh UUID directory under ignored `artifacts/one-off`.
+Never commit real outputs. Model names/digest, runtime version, available tokens,
+call ID, measured duration and prompt/payload hashes are retained. Unavailable costs
+are null; no external API fee is incurred by the local provider.
+
+One generation is performed per invocation, with no automatic retry. Current options
+are temperature 0, seed 42, context 16,384, six threads and immediate unload after
+generation. CLI defaults: output limit 1,800 tokens, timeout 900 seconds (max 1,800).
+Structured-output/citation validation does not verify the truth of every model-written
+numeric or semantic claim. The Markdown report includes calculated facts and review
+limitations. A tiny model can still recommend unsupported changes: review the result.
+Provenance checks identify input/reference consistency, not original CSV authenticity.
+
+Unit tests use deterministic doubles and mocked HTTP; they never pull a model or make
+paid/live calls. Add `../scripts/analyze_google_ads_once.py` to Ruff and MYPYPATH CLI
+checks. The optional runtime can be stopped with:
+
+```sh
+docker compose -f infrastructure/compose.local-ai.yaml stop
+```
+
+Keep volumes to avoid re-downloading weights. See ADR-021 for scope/tradeoffs and the
+distinction from the still-planned platform Data Analyst agent.
+
 ## M1.1 manual CSV check
+
+
 
 Open [API docs](http://127.0.0.1:8000/docs). Use **Try it out** on `POST /api/v1/projects` with `{"name":"CSV practice","description":"Synthetic example"}`. Copy the returned `id`, then use `POST /api/v1/files`: enter it as `project_id`, leave delimiter as comma and select `examples/sample_campaigns.csv` from this repository. A successful upload returns HTTP 201, three data rows, column count and a SHA-256 checksum.
 
